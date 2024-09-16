@@ -1,0 +1,19 @@
+{
+  "manifest_version": 3,
+  "name": "Job Info Extractor",
+  "version": "1.0",
+  "description": "Extracts job title, salary, and skills from job search websites.",
+  "action": {
+    "default_title": "Job Info"
+  },
+  "permissions": [
+    "activeTab",
+    "scripting"
+  ],
+  "background": {
+    "service_worker": "assets/background.js"
+  },
+  "host_permissions": [
+    "https://www.104.com.tw/job/*"
+  ]
+}
