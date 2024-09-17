@@ -6,6 +6,9 @@
   "action": {
     "default_title": "Job Info"
   },
+  "icons": {
+    "128": "assets/inactive_128.png"
+  },
   "permissions": [
     "activeTab",
     "scripting"

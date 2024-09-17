@@ -21,15 +21,10 @@ chrome.action.onClicked.addListener((tab) => {
   const isActive = activeTabs[tabId];
   console.log('action.onClicked activeTabs', activeTabs, tabId);
 
-  if (isActive) {
-    console.log('deactivate Extension');
-    deactivateExtension(tabId);
-  } else {
+  if (!isActive) {
     console.log('activate Extension');
     activateExtension(tab);
   }
-
-  activeTabs[tabId] = !isActive;
 });
 
 function activateExtension(tab: chrome.tabs.Tab) {
@@ -41,7 +36,11 @@ function activateExtension(tab: chrome.tabs.Tab) {
   }, _response => {
     console.log('activate executeScript');
 
-    chrome.tabs.sendMessage(tab.id!, { status: 'activate' });
+    chrome.tabs.sendMessage(tab.id!, {
+      status: 'activate',
+      from: 'serviceWorker',
+      data: null
+    });
 
     if (tab.favIconUrl) {
       chrome.action.setIcon({
@@ -52,26 +51,12 @@ function activateExtension(tab: chrome.tabs.Tab) {
       });
     }
 
+    chrome.action.setPopup({
+      popup: "index.html"
+    })
 
-    // chrome.action.setPopup({
-    //   popup: "index.html"
-    // })
+    activeTabs[tab.id!] = true;
   });
-}
-
-function deactivateExtension(tabId: number) {
-  console.log(`Extension deactivated on tab ${tabId}`);
-  chrome.tabs.sendMessage(tabId, { status: 'deactivate' });
-
-  chrome.action.setIcon({
-    tabId: tabId,
-    path: {
-      "512": inactive128,
-    }
-  });
-
-  activeTabs[tabId] = false;
-
 }
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
@@ -172,6 +157,30 @@ function handlePopup(
       data: jobInfo
     });
   }
+
+  if (status === "deactivate" && tabId) {
+    deactivateExtension(tabId)
+  }
+}
+
+function deactivateExtension(tabId: number | undefined) {
+  if (!tabId) return
+
+  console.log(`Extension deactivated on tab ${tabId}`);
+  chrome.tabs.sendMessage(tabId, {
+    status: 'deactivate',
+    from: 'serviceWorker',
+    data: null
+  });
+
+  chrome.action.setIcon({
+    tabId: tabId,
+    path: {
+      "128": inactive128,
+    }
+  });
+
+  activeTabs[tabId] = false;
 }
 
 chrome.tabs.onActivated.addListener((activeInfo) => {

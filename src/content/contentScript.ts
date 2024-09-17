@@ -1,4 +1,4 @@
-import { getSplitWords, keywordSet, mergeSkillsAndKeywords } from "../lib/utils";
+import { getSplitWords, keywordSet, mergeSkillsAndKeywords } from "../lib/extractor";
 
 interface JobInfo {
   jobTitle: string;
@@ -13,6 +13,18 @@ declare global {
     extractJobInfo: () => JobInfo;
   }
 }
+
+// "content_scripts": [
+//   {
+//     "matches": [
+//       "https://www.104.com.tw/job/*"
+//     ],
+//     "js": [
+//       "assets/content.js"
+//     ],
+//     "run_at": "document_end"
+//   }
+// ]
 
 const singleWordKeywords: Set<string> = new Set();
 const multiWordKeywords: Set<string> = new Set();

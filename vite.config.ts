@@ -1,16 +1,21 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-import { resolve } from 'path'
+import path from 'path'
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "./src"),
+    },
+  },
   build: {
     rollupOptions: {
       input: {
-        index: resolve(__dirname, 'index.html'),
-        content: resolve(__dirname, 'src/content/contentScript.ts'),
-        background: resolve(__dirname, 'src/background/background.ts'),
+        index: path.resolve(__dirname, 'index.html'),
+        content: path.resolve(__dirname, 'src/content/contentScript.ts'),
+        background: path.resolve(__dirname, 'src/background/background.ts'),
       },
       output: {
         entryFileNames: 'assets/[name].js',
