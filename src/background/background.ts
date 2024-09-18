@@ -187,38 +187,60 @@ function deactivateExtension(tabId: number | undefined) {
   activeTabs[tabId] = false;
 }
 
+function toggleExtension(tabId: number | undefined) {
+  if (!tabId) return
+
+  chrome.storage.local.get('switchState', (result) => {
+    if (result.switchState) {
+      activateExtension(tabId);
+    } else {
+      deactivateExtension(tabId)
+    }
+  });
+}
+
+function isIn104Website(tabUrl: string | undefined) {
+  return tabUrl?.includes('https://www.104.com.tw/job')
+}
+
 chrome.tabs.onActivated.addListener((activeInfo) => {
   console.log('activeInfo', activeInfo);
+  const tabId = activeInfo.tabId;
 
   // Get information about the active tab
-  chrome.tabs.get(activeInfo.tabId, (tab) => {
-    console.log('tab get', tab);
-
+  chrome.tabs.get(tabId, (tab) => {
     const tabUrl = tab.url || ''; // Ensure the URL is available
-    const isIn104Website = tabUrl.includes('https://www.104.com.tw/job')
 
-    if (!isIn104Website) {
+    if (!isIn104Website(tabUrl)) {
       return console.log('Non-job-search tab activated, ignoring.');
     }
 
-    const tabId = activeInfo.tabId;
-    const jobInfo = tabJobInfoCache[tabId]
+    // toggle on switch tab
+    toggleExtension(tabId)
 
-    // the message is sent from the background script to the contentScript in the specified tab.
-    if (jobInfo) {
-      chrome.tabs.sendMessage(tabId, {
-        status: 'passOnCacheData',
-        from: 'serviceWorker',
-        data: jobInfo
-      });
-    } else {
-      chrome.tabs.sendMessage(tabId, {
-        status: 'requestForNewData',
-        from: 'serviceWorker',
-        data: null
-      });
-    }
+    // const jobInfo = tabJobInfoCache[tabId]
+
+    // // the message is sent from the background script to the contentScript in the specified tab.
+    // if (jobInfo) {
+    //   chrome.tabs.sendMessage(tabId, {
+    //     status: 'passOnCacheData',
+    //     from: 'serviceWorker',
+    //     data: jobInfo
+    //   });
+    // } else {
+    //   chrome.tabs.sendMessage(tabId, {
+    //     status: 'requestForNewData',
+    //     from: 'serviceWorker',
+    //     data: null
+    //   });
+    // }
   })
+});
+
+chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+  if (changeInfo.status !== 'complete' || !isIn104Website(tab.url)) return
+  // toggle on create new tab
+  toggleExtension(tabId)
 });
 
 chrome.tabs.onRemoved.addListener((tabId) => {

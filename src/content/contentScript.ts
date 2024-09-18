@@ -94,23 +94,29 @@ async function init() {
     const mergedSkillsAndKeywords = mergeSkillsAndKeywords(jobInfo.skills, keywordsJobContent, keywordsOther);
 
     if (mergedSkillsAndKeywords.length !== 0) {
-      const keywordsElement = document.createElement('div');
-
-      keywordsElement.id = "keyword"
-      keywordsElement.style.paddingTop = "12px"
-      keywordsElement.style.paddingBottom = "12px"
-      keywordsElement.style.display = "flex"
-      keywordsElement.style.flexWrap = "wrap"
-      keywordsElement.style.alignItems = "center"
-      keywordsElement.style.gap = "8px"
-
       const skillBadges = [...mergedSkillsAndKeywords]
         .sort()
         .map(skill => `<div style="border-radius:9999px; background:#f3f4f6; color:#ff7800; padding:4px 10px">${skill}</div>`)
         .join('')
 
-      keywordsElement.innerHTML = skillBadges
-      jobTitleElement?.parentNode?.insertBefore(keywordsElement, jobTitleElement.nextSibling);
+      const previousKeywordsElement = document.getElementById('keyword');
+      if (previousKeywordsElement) {
+        previousKeywordsElement.innerHTML = skillBadges
+        jobTitleElement?.parentNode?.insertBefore(previousKeywordsElement, jobTitleElement.nextSibling);
+      } else {
+        const keywordsElement = document.createElement('div');
+        keywordsElement.id = "keyword"
+        keywordsElement.style.paddingTop = "12px"
+        keywordsElement.style.paddingBottom = "12px"
+        keywordsElement.style.display = "flex"
+        keywordsElement.style.flexWrap = "wrap"
+        keywordsElement.style.alignItems = "center"
+        keywordsElement.style.gap = "8px"
+
+        keywordsElement.innerHTML = skillBadges
+        jobTitleElement?.parentNode?.insertBefore(keywordsElement, jobTitleElement.nextSibling);
+      }
+
     }
   }
 
