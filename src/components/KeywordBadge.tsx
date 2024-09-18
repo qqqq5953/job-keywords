@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { Badge } from './ui/badge'
 import { Input } from './ui/input'
+import { RxCross1 } from "react-icons/rx";
+import { Button } from './ui/button';
 
 type Props = {
   keyword: string
@@ -12,6 +14,10 @@ type Props = {
     categoryName: string,
     oldKeyword: string,
     newKeyword: string
+  ) => void
+  deleteKeyword: (
+    categoryName: string,
+    deletedKeyword: string,
   ) => void
 }
 
@@ -25,40 +31,45 @@ export default function KeywordBadge(props: Props) {
   }
 
   useEffect(() => {
+    console.log('useEffect');
+
     if (isEditing) {
       inputRef.current?.select()
     }
   }, [isEditing])
 
   return (
-    <>
-      {isEditing ? (
-        <Badge
-          variant="secondary"
-          className="shrink-0 bg-neutral-200 hover:bg-neutral-200 rounded-full"
+    <Badge
+      variant="secondary"
+      className="shrink-0 bg-neutral-200 hover:bg-neutral-200 rounded-full gap-1 pr-1"
+    >
+      {isEditing ?
+        <Input
+          defaultValue={props.keyword}
+          ref={inputRef}
+          className="h-auto min-w-0 max-w-20 text-xs shadow-none focus-within:border-none px-2 py-1"
+          onBlur={(e) => handleEdit(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              handleEdit(inputRef.current!.value)
+            } else if (e.key === "Escape") {
+              setIsEditing(false)
+            }
+          }}
+        /> :
+        <span
           onClick={() => setIsEditing(true)}
-        >
-          <Input
-            defaultValue={props.keyword}
-            ref={inputRef}
-            className="h-auto min-w-0 max-w-20 text-xs shadow-none focus-within:border-none px-2 py-1"
-            onBlur={(e) => handleEdit(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                handleEdit(inputRef.current!.value)
-              }
-            }}
-          />
-        </Badge>
-      ) : (
-        <Badge
-          variant="secondary"
-          className="shrink-0 bg-neutral-200 hover:bg-neutral-200 rounded-full"
-          onClick={() => setIsEditing(true)}
-        >
-          {props.keyword}
-        </Badge>
-      )}
-    </>
+          className={`${props.keyword.includes("Untitled") ? "font-light" : ""}`}
+        >{props.keyword}</span>
+      }
+      <Button
+        size="sm"
+        variant="ghost"
+        className='p-1 size-auto'
+        onClick={() => props.deleteKeyword(props.category.name, props.keyword)}
+      >
+        <RxCross1 size={12} />
+      </Button>
+    </Badge>
   )
 }

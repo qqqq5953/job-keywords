@@ -1,10 +1,9 @@
-
-export const framework = ["reactjs", "react.js", "react", "react hook", "react hooks", "react native", "next.js", "nextjs", "vue", "vue.js", "vuejs", "vue2", "vue3", "nuxt.js", "nuxtjs", "gatsby"];
-export const stateManagement = ["vuex", "pinia", "redux", "rtk", "redux toolkit", "zustand"];
-export const languages = [
+const framework = ["reactjs", "react.js", "react", "react hook", "react hooks", "react native", "next.js", "nextjs", "vue", "vue.js", "vuejs", "vue2", "vue3", "nuxt.js", "nuxtjs", "gatsby"];
+const stateManagement = ["vuex", "pinia", "redux", "rtk", "redux toolkit", "zustand"];
+const languages = [
   "javascript", "typescript", "ts", "js"
 ];
-export const libraries = [
+const libraries = [
   "zod",
   "swr", "react query", "rtk query",
   "msw", "storybook",
@@ -13,19 +12,19 @@ export const libraries = [
   "apache echarts", "konva.js", "three.js", "shader", "d3.js", "chart.js",
   "jquery"
 ];
-export const css = [
+const css = [
   "tailwind css", "tailwind", "tailwindcss", "shadcn",
   "bootstrap", "bootstrap 5", "bootstrap5", "scss", "css",
   "headless ui", "material ui", "ant design", "style component"
 ];
-export const backend = ["nodejs", "node.js", "express.js", "php", "laravel", "python", "fastapi"];
-export const cloud = ["aws", "gcp", "azure", "firebase"];
-export const test = ["jest", "vitest", "playwright", "cypress", "unit test", "unit testing", "end-to-end testing", "e2e test"];
-export const db = ["mongodb", "mongoose", "sql", "mysql", "postgresql"];
-export const tools = ["vite", "webpack", "gulp", "babel"];
-export const devop = ["docker", "kubernetes", "k8s"];
-export const infoSec = ["xss", "cors", "csrf"]
-export const other = ["graphql", "websocket", "webrtc", "agile", "敏捷", "seo", "git", "github", "gitlab", "性能", "效能優化", "csr", "ssr", "ssg", "server side rendering", "static site generation", "clean code", "solid", "ci/cd", "cicd", "gitlab ci/cd", "code review", "linux", "tdd"];
+const backend = ["nodejs", "node.js", "express.js", "php", "laravel", "python", "fastapi"];
+const cloud = ["aws", "gcp", "azure", "firebase"];
+const test = ["jest", "vitest", "playwright", "cypress", "unit test", "unit testing", "end-to-end testing", "e2e test"];
+const db = ["mongodb", "mongoose", "sql", "mysql", "postgresql"];
+const tools = ["vite", "webpack", "gulp", "babel"];
+const devop = ["docker", "kubernetes", "k8s"];
+const infoSec = ["xss", "cors", "csrf"]
+const other = ["graphql", "websocket", "webrtc", "agile", "敏捷", "seo", "git", "github", "gitlab", "性能", "效能優化", "csr", "ssr", "ssg", "server side rendering", "static site generation", "clean code", "solid", "ci/cd", "cicd", "gitlab ci/cd", "code review", "linux", "tdd"];
 
 // Keywords stored in a Set for O(1) lookup time
 export const keywordSet = new Set([

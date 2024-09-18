@@ -14,18 +14,6 @@ declare global {
   }
 }
 
-// "content_scripts": [
-//   {
-//     "matches": [
-//       "https://www.104.com.tw/job/*"
-//     ],
-//     "js": [
-//       "assets/content.js"
-//     ],
-//     "run_at": "document_end"
-//   }
-// ]
-
 const singleWordKeywords: Set<string> = new Set();
 const multiWordKeywords: Set<string> = new Set();
 

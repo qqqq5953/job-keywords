@@ -1,3 +1,4 @@
+import favicon128 from '../assets/favicon_128.png';
 import inactive128 from '../assets/inactive_128.png';
 
 interface JobInfo {
@@ -14,50 +15,13 @@ chrome.runtime.onInstalled.addListener((details) => {
 const tabJobInfoCache: { [key: number]: JobInfo } = {};
 const activeTabs: { [key: number]: boolean } = {};
 
-chrome.action.onClicked.addListener((tab) => {
-  if (!tab.id || !tab.url?.includes('https://www.104.com.tw/job')) return;
+// chrome.action.onClicked.addListener((tab) => {
+//   if (!tab.id || !tab.url?.includes('https://www.104.com.tw/job')) return;
 
-  const tabId = tab.id;
-  const isActive = activeTabs[tabId];
-  console.log('action.onClicked activeTabs', activeTabs, tabId);
-
-  if (!isActive) {
-    console.log('activate Extension');
-    activateExtension(tab);
-  }
-});
-
-function activateExtension(tab: chrome.tabs.Tab) {
-  if (!tab.id) return
-
-  chrome.scripting.executeScript({
-    target: { tabId: tab.id },
-    files: ['assets/content.js']  // Ensure content script runs when clicking the extension icon
-  }, _response => {
-    console.log('activate executeScript');
-
-    chrome.tabs.sendMessage(tab.id!, {
-      status: 'activate',
-      from: 'serviceWorker',
-      data: null
-    });
-
-    if (tab.favIconUrl) {
-      chrome.action.setIcon({
-        tabId: tab.id,
-        path: {
-          "128": tab.favIconUrl,
-        }
-      });
-    }
-
-    chrome.action.setPopup({
-      popup: "index.html"
-    })
-
-    activeTabs[tab.id!] = true;
-  });
-}
+//   chrome.action.setPopup({
+//     popup: "index.html"
+//   })
+// });
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   console.log("Received message in background script:", message);
@@ -161,6 +125,46 @@ function handlePopup(
   if (status === "deactivate" && tabId) {
     deactivateExtension(tabId)
   }
+
+  if (status === "activate" && tabId) {
+    activateExtension(tabId)
+  }
+
+  if (status === 'getSwitchState') {
+    chrome.storage.local.get('switchState', (result) => {
+      sendResponse(result.switchState);
+    });
+    return true;  // Indicates asynchronous response
+  }
+}
+
+function activateExtension(tabId: number | undefined) {
+  if (!tabId) return
+
+  chrome.scripting.executeScript({
+    target: { tabId: tabId },
+    files: ['assets/content.js']  // Ensure content script runs when clicking the extension icon
+  }, _response => {
+    console.log('activate executeScript');
+    chrome.action.setPopup({
+      popup: "index.html"
+    })
+
+    chrome.action.setIcon({
+      tabId: tabId,
+      path: {
+        "128": favicon128,
+      }
+    });
+
+    chrome.tabs.sendMessage(tabId, {
+      status: 'activate',
+      from: 'serviceWorker',
+      data: null
+    });
+
+    activeTabs[tabId] = true;
+  });
 }
 
 function deactivateExtension(tabId: number | undefined) {

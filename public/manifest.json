@@ -4,14 +4,16 @@
   "version": "1.0",
   "description": "Extracts job title, salary, and skills from job search websites.",
   "action": {
-    "default_title": "Job Info"
+    "default_title": "Job Info",
+    "default_popup": "index.html"
   },
   "icons": {
     "128": "assets/inactive_128.png"
   },
   "permissions": [
     "activeTab",
-    "scripting"
+    "scripting",
+    "storage"
   ],
   "background": {
     "service_worker": "assets/background.js"
