@@ -1,38 +1,71 @@
-import { useEffect, useRef, useState } from 'react'
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react'
 import { Badge } from './ui/badge'
 import { Input } from './ui/input'
 import { RxCross1 } from "react-icons/rx";
 import { Button } from './ui/button';
 
+type Category = {
+  belongsTo: string;
+  keyword: string;
+}
+
 type Props = {
-  keyword: string
   category: {
-    name: string;
-    keywords: string[];
+    belongsTo: string;
+    keyword: string;
   }
-  editKeyword: (
-    categoryName: string,
-    oldKeyword: string,
-    newKeyword: string
-  ) => void
-  deleteKeyword: (
-    categoryName: string,
-    deletedKeyword: string,
-  ) => void
+  programmingTab: Record<string, Category[]>
+  setProgrammingTab: Dispatch<SetStateAction<Record<string, Category[]>>>
 }
 
 export default function KeywordBadge(props: Props) {
+  const {
+    belongsTo: categoryName,
+    keyword: currentKeyword
+  } = props.category
+
   const [isEditing, setIsEditing] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
 
-  function handleEdit(text: string) {
-    props.editKeyword(props.category.name, props.keyword, text)
+  function editKeyword(newKeyword: string) {
+    if (currentKeyword === newKeyword) return setIsEditing(false);
+
+    const categories = props.programmingTab[categoryName]
+    const alreadyExist = [...categories].some(category => category.keyword === newKeyword)
+
+    if (!alreadyExist) return setIsEditing(false);
+
+    props.setProgrammingTab(prev => {
+      const updatedCategory = prev[categoryName].map(category => {
+        // find target keyword and change it
+        if (category.keyword === currentKeyword) {
+          return { ...category, keyword: newKeyword };
+        }
+
+        return category;
+      });
+
+      return {
+        ...prev,
+        [categoryName]: updatedCategory,
+      };
+    });
+
     setIsEditing(false)
   }
 
-  useEffect(() => {
-    console.log('useEffect');
+  function deleteKeyword() {
+    props.setProgrammingTab(prev => {
+      const updatedCategory = prev[categoryName].filter(item => item.keyword !== currentKeyword);
 
+      return {
+        ...prev,
+        [categoryName]: updatedCategory,
+      };
+    });
+  }
+
+  useEffect(() => {
     if (isEditing) {
       inputRef.current?.select()
     }
@@ -45,13 +78,13 @@ export default function KeywordBadge(props: Props) {
     >
       {isEditing ?
         <Input
-          defaultValue={props.keyword}
+          defaultValue={currentKeyword}
           ref={inputRef}
           className="h-auto min-w-0 max-w-20 text-xs shadow-none focus-within:border-none px-2 py-1"
-          onBlur={(e) => handleEdit(e.target.value)}
+          onBlur={(e) => editKeyword(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === "Enter") {
-              handleEdit(inputRef.current!.value)
+              editKeyword(inputRef.current!.value)
             } else if (e.key === "Escape") {
               setIsEditing(false)
             }
@@ -59,14 +92,14 @@ export default function KeywordBadge(props: Props) {
         /> :
         <span
           onClick={() => setIsEditing(true)}
-          className={`${props.keyword.includes("Untitled") ? "font-light" : ""}`}
-        >{props.keyword}</span>
+          className={`${currentKeyword.includes("Untitled") ? "font-light" : ""}`}
+        >{currentKeyword}</span>
       }
       <Button
         size="sm"
         variant="ghost"
         className='p-1 size-auto'
-        onClick={() => props.deleteKeyword(props.category.name, props.keyword)}
+        onClick={deleteKeyword}
       >
         <RxCross1 size={12} />
       </Button>

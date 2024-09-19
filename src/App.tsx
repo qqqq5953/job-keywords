@@ -9,105 +9,53 @@ import { RiAddLargeFill } from "react-icons/ri";
 import { backend, cloud, css, db, devop, framework, infoSec, languages, libraries, other, stateManagement, test, tools } from "./lib/defaultCategories";
 import KeywordBadge from "./components/KeywordBadge";
 
-// interface JobInfo {
-//   jobTitle: string;
-//   salary: string;
-//   jobContent: string;
-//   skills: string[];
-// }
-
-// const defaultInfo = {
-//   jobTitle: '',
-//   salary: '',
-//   jobContent: '',
-//   skills: []
-// }
+type Category = {
+  belongsTo: string;
+  keyword: string;
+}
 
 function App() {
-  // const [jobInfo, setJobInfo] = useState<JobInfo>(defaultInfo);
   const [isActivate, setIsActivate] = useState(false)
 
-  const [frontendTab, setFrontendTab] = useState([
-    { name: "Frontend Framework", keywords: framework.sort() },
-    { name: "State Management", keywords: stateManagement.sort() },
-    { name: "Frontend Languages", keywords: languages.sort() },
-    { name: "Libraries", keywords: libraries.sort() },
-    { name: "CSS", keywords: css.sort() },
-    { name: "Backend", keywords: backend.sort() },
-    { name: "Cloud", keywords: cloud.sort() },
-    { name: "Test", keywords: test.sort() },
-    { name: "Database", keywords: db.sort() },
-    { name: "Tools", keywords: tools.sort() },
-    { name: "Devop", keywords: devop.sort() },
-    { name: "InfoSec", keywords: infoSec.sort() },
-    { name: "Other", keywords: other.sort() },
-  ]);
-
-  function editKeyword(categoryName: string, oldKeyword: string, newKeyword: string) {
-    if (oldKeyword === newKeyword) return
-
-    setFrontendTab(prev => {
-      return prev.map(category => {
-        if (category.name === categoryName) {
-          const newKeywords = category.keywords.map(keyword => {
-            if (keyword === oldKeyword) {
-              return newKeyword
-            } else {
-              return keyword
-            }
-          })
-
-          return {
-            ...category,
-            keywords: newKeywords
-          }
-        } else {
-          return category
-        }
-      })
-    })
-  }
+  // Change the state to use an object to manage categories and keywords
+  const [programmingTab, setProgrammingTab] = useState<Record<string, Category[]>>({
+    "Frontend Languages": languages,
+    "Frontend Framework": framework,
+    "State Management": stateManagement,
+    "Libraries": libraries,
+    "CSS": css,
+    "Backend": backend,
+    "Cloud": cloud,
+    "Test": test,
+    "Database": db,
+    "Tools": tools,
+    "Devop": devop,
+    "InfoSec": infoSec,
+    "Other": other,
+  });
 
   function addKeyword(categoryName: string) {
-    setFrontendTab(prev => {
-      return prev.map(category => {
-        if (category.name === categoryName) {
-          const untitledIndex = category.keywords.lastIndexOf("Untitled")
-          console.log('untitledIndex', untitledIndex);
-          const lastIndex = category.keywords.length - 1
+    setProgrammingTab(prev => {
+      let count = 0;
+      let newKeyword = "Untitled";
 
-          const append = untitledIndex !== -1 ?
-            `Untitled ${lastIndex - untitledIndex + 1}` :
-            "Untitled"
+      // Check for existing keywords in the category
+      const existingKeywords = prev[categoryName].map(item => item.keyword);
 
-          return {
-            name: category.name,
-            keywords: [...category.keywords, append]
-          }
-        } else {
-          return category
-        }
-      })
-    })
-  }
+      // Count how many "Untitled" entries exist and find a unique keyword
+      while (existingKeywords.indexOf(newKeyword) !== -1) {
+        count++;
+        newKeyword = `Untitled${count}`;
+      }
 
-  function deleteKeyword(categoryName: string, deletedKeyword: string) {
-    setFrontendTab(prev => {
-      return prev.map(category => {
-        if (category.name === categoryName) {
-          const newKeywords = category.keywords.filter(keyword => {
-            return keyword !== deletedKeyword
-          })
-
-          return {
-            ...category,
-            keywords: newKeywords
-          }
-        } else {
-          return category
-        }
-      })
-    })
+      return {
+        ...prev,
+        [categoryName]: [...prev[categoryName], {
+          belongsTo: categoryName,
+          keyword: newKeyword
+        }], // Add the new keyword to the Set
+      };
+    });
   }
 
   function deactivate() {
@@ -156,8 +104,6 @@ function App() {
   };
 
   useEffect(() => {
-    console.log('chrome.storage', chrome.storage);
-
     // Load the switch state from Chrome storage when the component mounts
     chrome.storage?.local.get('switchState', (result) => {
       if (result.switchState !== undefined) {
@@ -183,7 +129,6 @@ function App() {
       <div className="text-xs">
         Todo:
         <ul className="list-disc list-inside">
-          <li>每個類別用 set 取代 array 存，過濾重複的標籤</li>
           <li>每個關鍵字加上 category 紀錄屬於哪個類別：
             <div>1. 改變儲存標籤的資料結構以減少 CRUD 時間複雜度</div>
             <div>2. 前台可以用 groupBy() 分類標籤</div>
@@ -196,7 +141,30 @@ function App() {
         </TabsList>
         <TabsContent value="programming">
           <ul className="flex flex-col gap-4">
-            {frontendTab.map((category) => {
+            {Object.entries(programmingTab).map(([categoryName, categorySet]) => (
+              <li key={categoryName} className="relative flex flex-col gap-4 items-center bg-neutral-100 p-4 rounded-lg">
+                <div className="font-semibold shrink-0">{categoryName}</div>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => addKeyword(categoryName)}
+                  className="absolute right-6 top-3 hover:text-orange-500"
+                >
+                  <RiAddLargeFill size={16} />
+                </Button>
+                <div className="flex gap-2 items-center flex-wrap">
+                  {Array.from(categorySet).map((category, index) => (
+                    <KeywordBadge
+                      key={index}
+                      category={category}
+                      programmingTab={programmingTab}
+                      setProgrammingTab={setProgrammingTab}
+                    />
+                  ))}
+                </div>
+              </li>
+            ))}
+            {/* {programmingTab.map((category) => {
               return <li key={category.name} className="relative flex flex-col gap-4 items-center bg-neutral-100 p-4 rounded-lg">
                 <div className="font-semibold shrink-0">{category.name}</div>
                 <Button
@@ -208,7 +176,7 @@ function App() {
                   <RiAddLargeFill size={16} />
                 </Button>
                 <div className="flex gap-2 items-center flex-wrap">
-                  {category.keywords.map((keyword, index) => {
+                  {Array.from(category.keywords).map((keyword, index) => {
                     return <KeywordBadge
                       key={index}
                       keyword={keyword}
@@ -219,9 +187,9 @@ function App() {
                   })}
                 </div>
               </li>
-            })}
+            })} */}
           </ul>
-          {/* <pre className="text-xs">{JSON.stringify(frontendTab, null, 2)}</pre> */}
+          {/* <pre className="text-xs">{JSON.stringify(programmingTab, null, 2)}</pre> */}
         </TabsContent>
       </Tabs>
     </div>
