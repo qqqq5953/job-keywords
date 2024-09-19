@@ -42,7 +42,7 @@ function extractJobInfo(): JobInfo {
 
 (window as any).extractJobInfo = extractJobInfo;
 
-function sendMessageToWorker(jobInfo: JobInfo) {
+function sendMessageToWorker(jobInfo: JobInfo | string) {
   chrome.runtime.sendMessage({
     status: "onSuccessDataFetched",
     from: "contentScript",
@@ -81,77 +81,69 @@ async function init() {
   await waitForElement('h1');
   const jobInfo = extractJobInfo();
 
-  if (jobInfo.jobTitle !== 'No job title found') {
-    sendMessageToWorker(jobInfo);
+  if (jobInfo.jobTitle === 'No job title found') return
 
-    // Insert skills beside the job title
-    const keywordsJobContent = getSplitWords(jobInfo.jobContent, singleWordKeywords, multiWordKeywords);
+  const keywordsJobContent = getSplitWords(jobInfo.jobContent, singleWordKeywords, multiWordKeywords);
 
-    const keywordsOther = getSplitWords(jobInfo.otherConditions, singleWordKeywords, multiWordKeywords);
+  const keywordsOther = getSplitWords(jobInfo.otherConditions, singleWordKeywords, multiWordKeywords);
 
-    const jobTitleElement = document.querySelector('h1') as HTMLElement;
+  const mergedSkillsAndKeywords = mergeSkillsAndKeywords(jobInfo.skills, keywordsJobContent, keywordsOther);
 
-    const mergedSkillsAndKeywords = mergeSkillsAndKeywords(jobInfo.skills, keywordsJobContent, keywordsOther);
+  if (mergedSkillsAndKeywords.length === 0) return
 
-    if (mergedSkillsAndKeywords.length !== 0) {
-      const skillBadges = [...mergedSkillsAndKeywords]
-        .sort()
-        .map(skill => `<div style="border-radius:9999px; background:#f3f4f6; color:#ff7800; padding:4px 10px">${skill}</div>`)
-        .join('')
+  const skillBadges = [...mergedSkillsAndKeywords]
+    .sort()
+    .map(skill => `<div style="border-radius:9999px; background:#f3f4f6; color:#ff7800; padding:4px 10px">${skill}</div>`)
+    .join('')
 
-      const previousKeywordsElement = document.getElementById('keyword');
-      if (previousKeywordsElement) {
-        previousKeywordsElement.innerHTML = skillBadges
-        jobTitleElement?.parentNode?.insertBefore(previousKeywordsElement, jobTitleElement.nextSibling);
-      } else {
-        const keywordsElement = document.createElement('div');
-        keywordsElement.id = "keyword"
-        keywordsElement.style.paddingTop = "12px"
-        keywordsElement.style.paddingBottom = "12px"
-        keywordsElement.style.display = "flex"
-        keywordsElement.style.flexWrap = "wrap"
-        keywordsElement.style.alignItems = "center"
-        keywordsElement.style.gap = "8px"
+  sendMessageToWorker(skillBadges);
 
-        keywordsElement.innerHTML = skillBadges
-        jobTitleElement?.parentNode?.insertBefore(keywordsElement, jobTitleElement.nextSibling);
-      }
+  const keywordsElement = document.getElementById('keywords');
 
-    }
-  }
-
-  // Set up the MutationObserver for future changes
-  // const observer = new MutationObserver(() => {
-  //   const updatedJobInfo = extractJobInfo();
-  //   console.log('init MutationObserver updatedJobInfo', updatedJobInfo);
-
-  //   if (updatedJobInfo.jobTitle !== 'No job title found') {
-  //     sendMessageToWorker(updatedJobInfo);
-  //   }
-  // });
-
-  // observer.observe(document.body, { childList: true, subtree: true });
+  displayKeywords(keywordsElement, skillBadges)
 }
 
-chrome.runtime.onMessage.addListener((message, _sender, _sendResponse) => {
+function displayKeywords(keywordsElement: HTMLElement | null, skillBadges: string) {
+  if (!keywordsElement) {
+    keywordsElement = document.createElement('div');
+    keywordsElement.id = "keywords";
+    Object.assign(keywordsElement.style, {
+      paddingTop: "12px",
+      paddingBottom: "12px",
+      display: "flex",
+      flexWrap: "wrap",
+      alignItems: "center",
+      gap: "8px"
+    });
+
+    const jobTitleElement = document.querySelector('h1') as HTMLElement;
+    jobTitleElement?.parentNode?.insertBefore(keywordsElement, jobTitleElement.nextSibling);
+  }
+
+  /*
+  There's no requirement to set the innerHTML before inserting the element into the DOM. The process of inserting the element and setting its contents are independent of each other.
+  */
+  keywordsElement.innerHTML = skillBadges;
+}
+
+chrome.runtime.onMessage.addListener((message: Message, _sender, _sendResponse) => {
   console.log('contentScript onMessage', message);
 
-  if (message.status === 'requestForNewData') {
-    console.log('requestForNewData');
-    const updatedJobInfo = extractJobInfo();
-    sendMessageToWorker(updatedJobInfo);
-  } else if (message.status === 'passOnCacheData') {
-    console.log('use cache data');
-    sendMessageToWorker(message.data);
-  } else if (message.status === 'deactivate') {
+  if (message.status === 'deactivate') {
     console.log("Deactivating content script...");
-    const keyword = document.getElementById('keyword') as HTMLElement;
+    const keywordsElement = document.getElementById('keywords');
 
-    if (keyword) {
-      keyword.innerHTML = "";
+    if (keywordsElement) {
+      keywordsElement.innerHTML = "";
     }
   } else if (message.status === 'activate') {
-    console.log("Reactivating content script...");
-    init(); // Reinitalize the script to show keywords again
+    if (message.data) {
+      console.log("Reactivating using cache data");
+      const keywordsElement = document.getElementById('keywords');
+      displayKeywords(keywordsElement, message.data)
+    } else {
+      console.log("Activating content script...");
+      init();
+    }
   }
 });

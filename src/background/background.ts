@@ -1,34 +1,21 @@
 import favicon128 from '../assets/favicon_128.png';
 import inactive128 from '../assets/inactive_128.png';
 
-interface JobInfo {
-  jobTitle: string;
-  salary: string;
-  jobContent: string;
-  skills: string[];
-}
+type KeywordBadges = string
+
+const tabKeywordBadgesCache: { [tab: number]: KeywordBadges } = {};
+const activeTabs: { [tab: number]: boolean } = {};
 
 chrome.runtime.onInstalled.addListener((details) => {
   console.log('Job Info Extractor Extension Installed', details);
 });
 
-const tabJobInfoCache: { [key: number]: JobInfo } = {};
-const activeTabs: { [key: number]: boolean } = {};
-
-// chrome.action.onClicked.addListener((tab) => {
-//   if (!tab.id || !tab.url?.includes('https://www.104.com.tw/job')) return;
-
-//   chrome.action.setPopup({
-//     popup: "index.html"
-//   })
-// });
-
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((message, sender, _sendResponse) => {
   console.log("Received message in background script:", message);
 
   const messageProcessorMap: Record<string, () => void> = {
     contentScript: handleContentScript.bind(null, message, sender),
-    popup: handlePopup.bind(null, message, sendResponse)
+    popup: handlePopup.bind(null, message)
   }
 
   const messageProcessor = messageProcessorMap[message.from]
@@ -41,7 +28,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 });
 
 function handleContentScript(
-  message: any,
+  message: Message,
   sender: chrome.runtime.MessageSender,
 ) {
   if (message.status === "onSuccessDataFetched") {
@@ -50,7 +37,7 @@ function handleContentScript(
 }
 
 function handleOnSuccessDataFetched(
-  message: any,
+  message: Message,
   sender: chrome.runtime.MessageSender
 ) {
   if (!sender.tab || !sender.tab.id) return;
@@ -74,7 +61,7 @@ function handleOnSuccessDataFetched(
 let requestQueue: { tabId: number, resolve: Function }[] = [];
 let requestTimeout: number | null = null;
 
-function queueJobInfoProcessing(message: any, tabId: number) {
+function queueJobInfoProcessing(message: Message, tabId: number) {
   console.log('queueJobInfoProcessing', message);
 
   // Add request to the queue for batching
@@ -98,43 +85,23 @@ function processBatch() {
   uniqueRequests.forEach(req => req.resolve());
 }
 
-function cacheJobInfo(message: any, tabId: number) {
-  console.log('Cache job info for tabId', tabId, tabJobInfoCache);
+function cacheJobInfo(message: Message, tabId: number) {
+  console.log('Cache job info for tabId', tabId, tabKeywordBadgesCache);
 
-  if (!tabJobInfoCache[tabId]) {
-    tabJobInfoCache[tabId] = message.data;
+  if (!tabKeywordBadgesCache[tabId] && message.data) {
+    tabKeywordBadgesCache[tabId] = message.data;
   }
 }
 
 function handlePopup(
-  message: any,
-  sendResponse: (response?: any) => void
+  message: Message
 ) {
   const { status, tabId } = message
 
-  if (status === "getJobInfo" && tabId) {
-    const jobInfo = tabJobInfoCache[tabId]
-
-    sendResponse({
-      status: "jobInfoReceived",
-      from: 'serviceWorker',
-      data: jobInfo
-    });
-  }
-
-  if (status === "deactivate" && tabId) {
-    deactivateExtension(tabId)
-  }
-
-  if (status === "activate" && tabId) {
+  if (status === "activate") {
     activateExtension(tabId)
-  }
-
-  if (status === 'getSwitchState') {
-    chrome.storage.local.get('switchState', (result) => {
-      sendResponse(result.switchState);
-    });
-    return true;  // Indicates asynchronous response
+  } else if (status === "deactivate") {
+    deactivateExtension(tabId)
   }
 }
 
@@ -143,7 +110,7 @@ function activateExtension(tabId: number | undefined) {
 
   chrome.scripting.executeScript({
     target: { tabId: tabId },
-    files: ['assets/content.js']  // Ensure content script runs when clicking the extension icon
+    files: ['assets/content.js'] // Ensure content script runs when clicking the extension icon
   }, _response => {
     console.log('activate executeScript');
     chrome.action.setPopup({
@@ -160,7 +127,7 @@ function activateExtension(tabId: number | undefined) {
     chrome.tabs.sendMessage(tabId, {
       status: 'activate',
       from: 'serviceWorker',
-      data: null
+      data: tabKeywordBadgesCache[tabId] ?? null
     });
 
     activeTabs[tabId] = true;
@@ -188,8 +155,6 @@ function deactivateExtension(tabId: number | undefined) {
 }
 
 function toggleExtension(tabId: number | undefined) {
-  if (!tabId) return
-
   chrome.storage.local.get('switchState', (result) => {
     if (result.switchState) {
       activateExtension(tabId);
@@ -215,36 +180,18 @@ chrome.tabs.onActivated.addListener((activeInfo) => {
       return console.log('Non-job-search tab activated, ignoring.');
     }
 
-    // toggle on switch tab
-    toggleExtension(tabId)
-
-    // const jobInfo = tabJobInfoCache[tabId]
-
-    // // the message is sent from the background script to the contentScript in the specified tab.
-    // if (jobInfo) {
-    //   chrome.tabs.sendMessage(tabId, {
-    //     status: 'passOnCacheData',
-    //     from: 'serviceWorker',
-    //     data: jobInfo
-    //   });
-    // } else {
-    //   chrome.tabs.sendMessage(tabId, {
-    //     status: 'requestForNewData',
-    //     from: 'serviceWorker',
-    //     data: null
-    //   });
-    // }
+    toggleExtension(tabId) // toggle on switch tab
   })
 });
 
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   if (changeInfo.status !== 'complete' || !isIn104Website(tab.url)) return
-  // toggle on create new tab
-  toggleExtension(tabId)
+
+  toggleExtension(tabId) // toggle on create new tab
 });
 
 chrome.tabs.onRemoved.addListener((tabId) => {
-  delete tabJobInfoCache[tabId];  // Clean up data when a tab is closed
+  delete tabKeywordBadgesCache[tabId];  // Clean up data when a tab is closed
   delete activeTabs[tabId];  // Clean up data when a tab is closed
-  console.log('delete tabId', tabId, tabJobInfoCache, activeTabs);
+  console.log('delete tabId', tabId, tabKeywordBadgesCache, activeTabs);
 });

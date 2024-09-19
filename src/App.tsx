@@ -166,27 +166,6 @@ function App() {
     });
   }, []);
 
-  // useEffect(() => {
-  //   function fetchJobInfo() {
-  //     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-  //       const activeTabId = tabs[0]?.id;
-
-  //       chrome.runtime.sendMessage({
-  //         status: 'getJobInfo',
-  //         from: 'popup',
-  //         tabId: activeTabId
-  //       }, response => {
-  //         console.log('useEffect', response);
-  //         if (response.status === "jobInfoReceived") {
-  //           setJobInfo(response.data || defaultInfo);
-  //         }
-  //       });
-  //     });
-  //   };
-
-  //   // fetchJobInfo();
-  // }, []);
-
 
   return (
     <div className='flex flex-col items-center justify-center p-4 gap-4'>
