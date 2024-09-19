@@ -5,11 +5,19 @@ import { RxCross1 } from "react-icons/rx";
 import { Button } from './ui/button';
 
 type Props = {
-  keyword: string
   category: {
-    name: string;
-    keywords: string[];
+    belongsTo: string;
+    keyword: string;
   }
+  // keyword: string
+  // category: {
+  //   name: string;
+  //   keywords: Set<string>;
+  // }
+  // category: {
+  //   name: string;
+  //   keywords: string[];
+  // }
   editKeyword: (
     categoryName: string,
     oldKeyword: string,
@@ -26,7 +34,8 @@ export default function KeywordBadge(props: Props) {
   const inputRef = useRef<HTMLInputElement>(null)
 
   function handleEdit(text: string) {
-    props.editKeyword(props.category.name, props.keyword, text)
+    props.editKeyword(props.category.belongsTo, props.category.keyword, text)
+    // props.editKeyword(props.category.name, props.keyword, text)
     setIsEditing(false)
   }
 
@@ -45,7 +54,7 @@ export default function KeywordBadge(props: Props) {
     >
       {isEditing ?
         <Input
-          defaultValue={props.keyword}
+          defaultValue={props.category.keyword}
           ref={inputRef}
           className="h-auto min-w-0 max-w-20 text-xs shadow-none focus-within:border-none px-2 py-1"
           onBlur={(e) => handleEdit(e.target.value)}
@@ -59,14 +68,17 @@ export default function KeywordBadge(props: Props) {
         /> :
         <span
           onClick={() => setIsEditing(true)}
-          className={`${props.keyword.includes("Untitled") ? "font-light" : ""}`}
-        >{props.keyword}</span>
+          className={`${props.category.keyword.includes("Untitled") ? "font-light" : ""}`}
+        >{props.category.keyword}</span>
       }
       <Button
         size="sm"
         variant="ghost"
         className='p-1 size-auto'
-        onClick={() => props.deleteKeyword(props.category.name, props.keyword)}
+        onClick={() => props.deleteKeyword(
+          props.category.belongsTo,
+          props.category.keyword
+        )}
       >
         <RxCross1 size={12} />
       </Button>
