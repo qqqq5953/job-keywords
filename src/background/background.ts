@@ -10,12 +10,12 @@ chrome.runtime.onInstalled.addListener((details) => {
   console.log('Job Info Extractor Extension Installed', details);
 });
 
-chrome.runtime.onMessage.addListener((message, sender, _sendResponse) => {
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   console.log("Received message in background script:", message);
 
   const messageProcessorMap: Record<string, () => void> = {
     contentScript: handleContentScript.bind(null, message, sender),
-    popup: handlePopup.bind(null, message)
+    popup: handlePopup.bind(null, message, sendResponse)
   }
 
   const messageProcessor = messageProcessorMap[message.from]
@@ -94,18 +94,19 @@ function cacheJobInfo(message: Message, tabId: number) {
 }
 
 function handlePopup(
-  message: Message
+  message: Message,
+  sendResponse: (response?: any) => void
 ) {
   const { status, tabId } = message
 
   if (status === "activate") {
-    activateExtension(tabId)
+    activateExtension(tabId, sendResponse)
   } else if (status === "deactivate") {
-    deactivateExtension(tabId)
+    deactivateExtension(tabId, sendResponse)
   }
 }
 
-function activateExtension(tabId: number | undefined) {
+function activateExtension(tabId: number | undefined, sendResponse?: (response?: any) => void) {
   if (!tabId) return
 
   chrome.scripting.executeScript({
@@ -117,24 +118,40 @@ function activateExtension(tabId: number | undefined) {
       popup: "index.html"
     })
 
-    chrome.action.setIcon({
-      tabId: tabId,
-      path: {
-        "128": favicon128,
-      }
-    });
+    setIcon(tabId, favicon128)
 
     chrome.tabs.sendMessage(tabId, {
       status: 'activate',
       from: 'serviceWorker',
       data: tabKeywordBadgesCache[tabId] ?? null
+    }).then((res) => {
+      // Respond to popup
+      if (sendResponse) {
+        sendResponse(res);
+      } else {
+        chrome.runtime.sendMessage({
+          status: 'activateSuccess',
+          from: 'serviceWorker',
+          tabId: tabId
+        });
+      }
+    }).catch(err => {
+      console.log('activate err', err);
+
+      setIcon(tabId, inactive128)
+      chrome.runtime.sendMessage({
+        from: 'serviceWorker',
+        status: 'deactivateFailed',
+        tabId: tabId,
+        data: err
+      });
     });
 
     activeTabs[tabId] = true;
   });
 }
 
-function deactivateExtension(tabId: number | undefined) {
+function deactivateExtension(tabId: number | undefined, sendResponse?: (response?: any) => void) {
   if (!tabId) return
 
   console.log(`Extension deactivated on tab ${tabId}`);
@@ -142,16 +159,39 @@ function deactivateExtension(tabId: number | undefined) {
     status: 'deactivate',
     from: 'serviceWorker',
     data: null
-  });
-
-  chrome.action.setIcon({
-    tabId: tabId,
-    path: {
-      "128": inactive128,
+  }).then((res) => {
+    // Respond to popup
+    if (sendResponse) {
+      sendResponse(res);
+    } else {
+      chrome.runtime.sendMessage({
+        status: 'deactivateSuccess',
+        from: 'serviceWorker',
+        tabId: tabId
+      });
     }
+
+    setIcon(tabId, inactive128)
+  }).catch(err => {
+    // setIcon(tabId, favicon128)
+    chrome.runtime.sendMessage({
+      from: 'serviceWorker',
+      status: 'deactivateFailed',
+      tabId: tabId,
+      data: err
+    });
   });
 
   activeTabs[tabId] = false;
+}
+
+function setIcon(tabId: number, icon: string) {
+  chrome.action.setIcon({
+    tabId: tabId,
+    path: {
+      "128": icon,
+    }
+  });
 }
 
 function toggleExtension(tabId: number | undefined) {

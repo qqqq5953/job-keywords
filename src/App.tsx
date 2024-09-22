@@ -64,7 +64,7 @@ function App() {
           [groupName]: [...prev[currentTab][groupName], {
             belongsTo: groupName,
             name: newKeyword
-          }], // Add the new keyword to the Set
+          }],
         }
       };
     });
@@ -79,7 +79,7 @@ function App() {
         from: 'popup',
         tabId: activeTabId
       }, response => {
-        const state = response.status === "deactivate" ? isChecked : !isChecked
+        const state = response.status === "deactivateSuccess" ? isChecked : !isChecked
 
         setIsActivate(state)
         chrome.storage?.local.set({ switchState: state });
@@ -96,7 +96,7 @@ function App() {
         from: 'popup',
         tabId: activeTabId
       }, response => {
-        const state = response.status === "activate" ? isChecked : !isChecked
+        const state = response.status === "activateSuccess" ? isChecked : !isChecked
 
         setIsActivate(state)
         chrome.storage?.local.set({ switchState: state });

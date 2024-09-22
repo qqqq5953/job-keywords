@@ -33,7 +33,7 @@ Array.from(keywordSet).forEach(keyword => {
 function extractJobInfo(): JobInfo {
   const jobTitle = (document.querySelector('h1') as HTMLElement)?.innerText || 'No job title found';
   const salary = (document.querySelector('.identity-type > div[data-v-bff8d6dd] > div[data-v-bff8d6dd] > p[data-v-fb1b8854]') as HTMLElement)?.innerText || 'No salary provided';
-  const jobContent = (document.querySelector('.job-description p') as HTMLElement)?.innerText || 'No jobContent provided';
+  const jobContent = (document.querySelector('.job-description > p') as HTMLElement)?.innerText || 'No jobContent provided';
   const otherConditions = (document.querySelector('.job-requirement-table__data p') as HTMLElement)?.innerText || 'No other conditions provided';
   const skills = Array.from(document.querySelectorAll('span a.tools')).map(skill => (skill as HTMLElement).innerText) || 'No skills provided';
 
@@ -41,20 +41,6 @@ function extractJobInfo(): JobInfo {
 }
 
 (window as any).extractJobInfo = extractJobInfo;
-
-function sendMessageToWorker(jobInfo: JobInfo | string) {
-  chrome.runtime.sendMessage({
-    status: "onSuccessDataFetched",
-    from: "contentScript",
-    data: jobInfo
-  }, response => {
-    if (chrome.runtime.lastError) {
-      console.log("Could not establish connection: ", chrome.runtime.lastError.message);
-    } else {
-      console.log("Message sent successfully", response);
-    }
-  });
-}
 
 function waitForElement(selector: string) {
   return new Promise(resolve => {
@@ -96,8 +82,6 @@ async function init() {
     .map(skill => `<div style="border-radius:9999px; background:#f3f4f6; color:#ff7800; padding:4px 10px">${skill}</div>`)
     .join('')
 
-  sendMessageToWorker(skillBadges);
-
   const keywordsElement = document.getElementById('keywords');
 
   displayKeywords(keywordsElement, skillBadges)
@@ -126,24 +110,49 @@ function displayKeywords(keywordsElement: HTMLElement | null, skillBadges: strin
   keywordsElement.innerHTML = skillBadges;
 }
 
-chrome.runtime.onMessage.addListener((message: Message, _sender, _sendResponse) => {
+function handleDeactivate(sendResponse: (response?: any) => void) {
+  console.log("Deactivating content script...");
+  const keywordsElement = document.getElementById('keywords');
+
+  if (keywordsElement) {
+    keywordsElement.innerHTML = "";
+  }
+
+  sendResponse({
+    status: 'deactivateSuccess',
+    from: 'contentScript',
+    data: null
+  })
+}
+
+function handleActivate(message: Message, sendResponse: (response?: any) => void) {
+  if (message.data) {
+    console.log("Reactivating using cache data");
+    const keywordsElement = document.getElementById('keywords');
+    displayKeywords(keywordsElement, message.data)
+    sendResponse({
+      status: 'activateSuccess',
+      from: 'contentScript',
+      data: null
+    })
+  } else {
+    console.log("Activating content script...");
+    init().then(() => {
+      sendResponse({
+        status: 'activateSuccess',
+        from: 'contentScript',
+        data: null
+      })
+    });
+  }
+}
+
+chrome.runtime.onMessage.addListener((message: Message, _sender, sendResponse) => {
   console.log('contentScript onMessage', message);
 
   if (message.status === 'deactivate') {
-    console.log("Deactivating content script...");
-    const keywordsElement = document.getElementById('keywords');
-
-    if (keywordsElement) {
-      keywordsElement.innerHTML = "";
-    }
+    handleDeactivate(sendResponse)
   } else if (message.status === 'activate') {
-    if (message.data) {
-      console.log("Reactivating using cache data");
-      const keywordsElement = document.getElementById('keywords');
-      displayKeywords(keywordsElement, message.data)
-    } else {
-      console.log("Activating content script...");
-      init();
-    }
+    handleActivate(message, sendResponse)
   }
 });
