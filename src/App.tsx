@@ -5,55 +5,60 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Switch } from "@/components/ui/switch"
 
 import { RiAddLargeFill } from "react-icons/ri";
+import { MdOutlineLibraryAdd } from "react-icons/md";
 
 import { backend, cloud, css, db, devop, framework, infoSec, languages, libraries, other, stateManagement, test, tools } from "./lib/defaultCategories";
 import KeywordBadge from "./components/KeywordBadge";
-
-type Category = {
-  belongsTo: string;
-  keyword: string;
-}
+import DialogAddGroup from "./components/DialogAddGroup";
 
 function App() {
   const [isActivate, setIsActivate] = useState(false)
+  const [currentTab, setCurrentTab] = useState("programming")
 
   // Change the state to use an object to manage categories and keywords
-  const [programmingTab, setProgrammingTab] = useState<Record<string, Category[]>>({
-    "Frontend Languages": languages,
-    "Frontend Framework": framework,
-    "State Management": stateManagement,
-    "Libraries": libraries,
-    "CSS": css,
-    "Backend": backend,
-    "Cloud": cloud,
-    "Test": test,
-    "Database": db,
-    "Tools": tools,
-    "Devop": devop,
-    "InfoSec": infoSec,
-    "Other": other,
+  const [tabInfo, setTabInfo] = useState<Record<string, Record<string, Keyword[]>>>({
+    programming: {
+      "Frontend Languages": languages,
+      "Frontend Framework": framework,
+      "State Management": stateManagement,
+      "Libraries": libraries,
+      "CSS": css,
+      "Backend": backend,
+      "Cloud": cloud,
+      "Test": test,
+      "Database": db,
+      "Tools": tools,
+      "Devop": devop,
+      "InfoSec": infoSec,
+      "Other": other,
+    }
   });
 
-  function addKeyword(categoryName: string) {
-    setProgrammingTab(prev => {
+  const selectedTabInfo = tabInfo[currentTab]
+
+  function addKeyword(groupName: string) {
+    setTabInfo(prev => {
       let count = 0;
-      let newKeyword = "Untitled";
+      let newKeyword = "New Keyword";
 
       // Check for existing keywords in the category
-      const existingKeywords = prev[categoryName].map(item => item.keyword);
+      const existingKeywords = prev[currentTab][groupName].map(keyword => keyword.name);
 
-      // Count how many "Untitled" entries exist and find a unique keyword
+      // Count how many "New Keyword" entries exist and find a unique keyword
       while (existingKeywords.indexOf(newKeyword) !== -1) {
         count++;
-        newKeyword = `Untitled${count}`;
+        newKeyword = `New Keyword${count}`;
       }
 
       return {
         ...prev,
-        [categoryName]: [...prev[categoryName], {
-          belongsTo: categoryName,
-          keyword: newKeyword
-        }], // Add the new keyword to the Set
+        [currentTab]: {
+          ...prev[currentTab],
+          [groupName]: [...prev[currentTab][groupName], {
+            belongsTo: groupName,
+            name: newKeyword
+          }], // Add the new keyword to the Set
+        }
       };
     });
   }
@@ -112,7 +117,6 @@ function App() {
     });
   }, []);
 
-
   return (
     <div className='flex flex-col items-center justify-center p-4 gap-4'>
       <div className="relative w-full">
@@ -135,36 +139,48 @@ function App() {
           </li>
         </ul>
       </div>
-      <Tabs defaultValue="programming">
-        <TabsList>
-          <TabsTrigger value="programming">Programming</TabsTrigger>
-        </TabsList>
-        <TabsContent value="programming">
-          <ul className="flex flex-col gap-4">
-            {Object.entries(programmingTab).map(([categoryName, categorySet]) => (
-              <li key={categoryName} className="relative flex flex-col gap-4 items-center bg-neutral-100 p-4 rounded-lg">
-                <div className="font-semibold shrink-0">{categoryName}</div>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={() => addKeyword(categoryName)}
-                  className="absolute right-6 top-3 hover:text-orange-500"
-                >
-                  <RiAddLargeFill size={16} />
-                </Button>
-                <div className="flex gap-2 items-center flex-wrap">
-                  {Array.from(categorySet).map((category, index) => (
-                    <KeywordBadge
-                      key={index}
-                      category={category}
-                      programmingTab={programmingTab}
-                      setProgrammingTab={setProgrammingTab}
-                    />
-                  ))}
-                </div>
-              </li>
-            ))}
-            {/* {programmingTab.map((category) => {
+      <div className="relative">
+        <Button className="absolute top-0 right-0 gap-1 text-xs hover:text-blue-600 hover:bg-transparent duration-300" variant="ghost">
+          <MdOutlineLibraryAdd size={16} /> Add Keyword
+        </Button>
+
+        <Tabs value={currentTab} onValueChange={setCurrentTab}>
+          <TabsList>
+            <TabsTrigger value="programming" className="capitalize">{currentTab}</TabsTrigger>
+          </TabsList>
+          <TabsContent value="programming" className="pt-8 border-t">
+            <DialogAddGroup
+              tabInfo={tabInfo}
+              setTabInfo={setTabInfo}
+              currentTab={currentTab}
+            />
+
+            <ul className="flex flex-col gap-5">
+              {Object.entries(selectedTabInfo).map(([groupName, categorySet]) => (
+                <li key={groupName} className="relative flex flex-col gap-4 items-center p-4 rounded-lg bg-neutral-50 shadow-md shadow-neutral-200 border border-neutral-100">
+                  <div className="font-semibold shrink-0">{groupName}</div>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => addKeyword(groupName)}
+                    className="absolute right-6 top-3 hover:text-orange-500 duration-300"
+                  >
+                    <RiAddLargeFill size={16} />
+                  </Button>
+                  <div className="flex gap-2.5 items-center flex-wrap">
+                    {Array.from(categorySet).map((keyword, index) => (
+                      <KeywordBadge
+                        key={index}
+                        keyword={keyword}
+                        tabInfo={tabInfo}
+                        setTabInfo={setTabInfo}
+                        currentTab={currentTab}
+                      />
+                    ))}
+                  </div>
+                </li>
+              ))}
+              {/* {programmingTab.map((category) => {
               return <li key={category.name} className="relative flex flex-col gap-4 items-center bg-neutral-100 p-4 rounded-lg">
                 <div className="font-semibold shrink-0">{category.name}</div>
                 <Button
@@ -188,10 +204,11 @@ function App() {
                 </div>
               </li>
             })} */}
-          </ul>
-          {/* <pre className="text-xs">{JSON.stringify(programmingTab, null, 2)}</pre> */}
-        </TabsContent>
-      </Tabs>
+            </ul>
+            <pre className="text-xs">{JSON.stringify(tabInfo, null, 2)}</pre>
+          </TabsContent>
+        </Tabs>
+      </div>
     </div>
   );
 }

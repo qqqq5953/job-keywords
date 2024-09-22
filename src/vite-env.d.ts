@@ -6,3 +6,8 @@ type Message = {
   data: string | null
   tabId?: number
 }
+
+type Keyword = {
+  belongsTo: string;
+  name: string;
+}

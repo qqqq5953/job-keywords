@@ -1,144 +1,144 @@
 export const framework = [
-  { belongsTo: 'Frontend Framework', keyword: 'reactjs' },
-  { belongsTo: 'Frontend Framework', keyword: 'react.js' },
-  { belongsTo: 'Frontend Framework', keyword: 'react' },
-  { belongsTo: 'Frontend Framework', keyword: 'react hook' },
-  { belongsTo: 'Frontend Framework', keyword: 'react hooks' },
-  { belongsTo: 'Frontend Framework', keyword: 'react native' },
-  { belongsTo: 'Frontend Framework', keyword: 'next.js' },
-  { belongsTo: 'Frontend Framework', keyword: 'nextjs' },
-  { belongsTo: 'Frontend Framework', keyword: 'vue' },
-  { belongsTo: 'Frontend Framework', keyword: 'vue.js' },
-  { belongsTo: 'Frontend Framework', keyword: 'vuejs' },
-  { belongsTo: 'Frontend Framework', keyword: 'vue2' },
-  { belongsTo: 'Frontend Framework', keyword: 'vue3' },
-  { belongsTo: 'Frontend Framework', keyword: 'nuxt.js' },
-  { belongsTo: 'Frontend Framework', keyword: 'nuxtjs' },
-  { belongsTo: 'Frontend Framework', keyword: 'gatsby' }
+  { belongsTo: 'Frontend Framework', name: 'reactjs' },
+  { belongsTo: 'Frontend Framework', name: 'react.js' },
+  { belongsTo: 'Frontend Framework', name: 'react' },
+  { belongsTo: 'Frontend Framework', name: 'react hook' },
+  { belongsTo: 'Frontend Framework', name: 'react hooks' },
+  { belongsTo: 'Frontend Framework', name: 'react native' },
+  { belongsTo: 'Frontend Framework', name: 'next.js' },
+  { belongsTo: 'Frontend Framework', name: 'nextjs' },
+  { belongsTo: 'Frontend Framework', name: 'vue' },
+  { belongsTo: 'Frontend Framework', name: 'vue.js' },
+  { belongsTo: 'Frontend Framework', name: 'vuejs' },
+  { belongsTo: 'Frontend Framework', name: 'vue2' },
+  { belongsTo: 'Frontend Framework', name: 'vue3' },
+  { belongsTo: 'Frontend Framework', name: 'nuxt.js' },
+  { belongsTo: 'Frontend Framework', name: 'nuxtjs' },
+  { belongsTo: 'Frontend Framework', name: 'gatsby' }
 ];
 export const stateManagement = [
-  { belongsTo: 'State Management', keyword: 'vuex' },
-  { belongsTo: 'State Management', keyword: 'pinia' },
-  { belongsTo: 'State Management', keyword: 'redux' },
-  { belongsTo: 'State Management', keyword: 'rtk' },
-  { belongsTo: 'State Management', keyword: 'redux toolkit' },
-  { belongsTo: 'State Management', keyword: 'zustand' }
+  { belongsTo: 'State Management', name: 'vuex' },
+  { belongsTo: 'State Management', name: 'pinia' },
+  { belongsTo: 'State Management', name: 'redux' },
+  { belongsTo: 'State Management', name: 'rtk' },
+  { belongsTo: 'State Management', name: 'redux toolkit' },
+  { belongsTo: 'State Management', name: 'zustand' }
 ];
 export const languages = [
-  { belongsTo: 'Frontend Languages', keyword: 'javascript' },
-  { belongsTo: 'Frontend Languages', keyword: 'typescript' },
-  { belongsTo: 'Frontend Languages', keyword: 'ts' },
-  { belongsTo: 'Frontend Languages', keyword: 'js' }
+  { belongsTo: 'Frontend Languages', name: 'javascript' },
+  { belongsTo: 'Frontend Languages', name: 'typescript' },
+  { belongsTo: 'Frontend Languages', name: 'ts' },
+  { belongsTo: 'Frontend Languages', name: 'js' }
 ];
 export const libraries = [
-  { belongsTo: 'Libraries', keyword: 'zod' },
-  { belongsTo: 'Libraries', keyword: 'swr' },
-  { belongsTo: 'Libraries', keyword: 'react query' },
-  { belongsTo: 'Libraries', keyword: 'rtk query' },
-  { belongsTo: 'Libraries', keyword: 'msw' },
-  { belongsTo: 'Libraries', keyword: 'storybook' },
-  { belongsTo: 'Libraries', keyword: 'react-i18n' },
-  { belongsTo: 'Libraries', keyword: 'vue-i18n' },
-  { belongsTo: 'Libraries', keyword: 'react i18n' },
-  { belongsTo: 'Libraries', keyword: 'vue i18n' },
-  { belongsTo: 'Libraries', keyword: 'react router' },
-  { belongsTo: 'Libraries', keyword: 'vue router' },
-  { belongsTo: 'Libraries', keyword: 'apache echarts' },
-  { belongsTo: 'Libraries', keyword: 'konva.js' },
-  { belongsTo: 'Libraries', keyword: 'three.js' },
-  { belongsTo: 'Libraries', keyword: 'shader' },
-  { belongsTo: 'Libraries', keyword: 'd3.js' },
-  { belongsTo: 'Libraries', keyword: 'chart.js' },
-  { belongsTo: 'Libraries', keyword: 'jquery' }
+  { belongsTo: 'Libraries', name: 'zod' },
+  { belongsTo: 'Libraries', name: 'swr' },
+  { belongsTo: 'Libraries', name: 'react query' },
+  { belongsTo: 'Libraries', name: 'rtk query' },
+  { belongsTo: 'Libraries', name: 'msw' },
+  { belongsTo: 'Libraries', name: 'storybook' },
+  { belongsTo: 'Libraries', name: 'react-i18n' },
+  { belongsTo: 'Libraries', name: 'vue-i18n' },
+  { belongsTo: 'Libraries', name: 'react i18n' },
+  { belongsTo: 'Libraries', name: 'vue i18n' },
+  { belongsTo: 'Libraries', name: 'react router' },
+  { belongsTo: 'Libraries', name: 'vue router' },
+  { belongsTo: 'Libraries', name: 'apache echarts' },
+  { belongsTo: 'Libraries', name: 'konva.js' },
+  { belongsTo: 'Libraries', name: 'three.js' },
+  { belongsTo: 'Libraries', name: 'shader' },
+  { belongsTo: 'Libraries', name: 'd3.js' },
+  { belongsTo: 'Libraries', name: 'chart.js' },
+  { belongsTo: 'Libraries', name: 'jquery' }
 ];
 export const css = [
-  { belongsTo: 'CSS', keyword: 'tailwind css' },
-  { belongsTo: 'CSS', keyword: 'tailwind' },
-  { belongsTo: 'CSS', keyword: 'tailwindcss' },
-  { belongsTo: 'CSS', keyword: 'shadcn' },
-  { belongsTo: 'CSS', keyword: 'bootstrap' },
-  { belongsTo: 'CSS', keyword: 'bootstrap 5' },
-  { belongsTo: 'CSS', keyword: 'bootstrap5' },
-  { belongsTo: 'CSS', keyword: 'scss' },
-  { belongsTo: 'CSS', keyword: 'css' },
-  { belongsTo: 'CSS', keyword: 'headless ui' },
-  { belongsTo: 'CSS', keyword: 'material ui' },
-  { belongsTo: 'CSS', keyword: 'ant design' },
-  { belongsTo: 'CSS', keyword: 'style component' }
+  { belongsTo: 'CSS', name: 'tailwind css' },
+  { belongsTo: 'CSS', name: 'tailwind' },
+  { belongsTo: 'CSS', name: 'tailwindcss' },
+  { belongsTo: 'CSS', name: 'shadcn' },
+  { belongsTo: 'CSS', name: 'bootstrap' },
+  { belongsTo: 'CSS', name: 'bootstrap 5' },
+  { belongsTo: 'CSS', name: 'bootstrap5' },
+  { belongsTo: 'CSS', name: 'scss' },
+  { belongsTo: 'CSS', name: 'css' },
+  { belongsTo: 'CSS', name: 'headless ui' },
+  { belongsTo: 'CSS', name: 'material ui' },
+  { belongsTo: 'CSS', name: 'ant design' },
+  { belongsTo: 'CSS', name: 'style component' }
 ];
 export const backend = [
-  { belongsTo: 'Backend', keyword: 'nodejs' },
-  { belongsTo: 'Backend', keyword: 'node.js' },
-  { belongsTo: 'Backend', keyword: 'express.js' },
-  { belongsTo: 'Backend', keyword: 'php' },
-  { belongsTo: 'Backend', keyword: 'laravel' },
-  { belongsTo: 'Backend', keyword: 'python' },
-  { belongsTo: 'Backend', keyword: 'fastapi' }
+  { belongsTo: 'Backend', name: 'nodejs' },
+  { belongsTo: 'Backend', name: 'node.js' },
+  { belongsTo: 'Backend', name: 'express.js' },
+  { belongsTo: 'Backend', name: 'php' },
+  { belongsTo: 'Backend', name: 'laravel' },
+  { belongsTo: 'Backend', name: 'python' },
+  { belongsTo: 'Backend', name: 'fastapi' }
 ];
 export const cloud = [
-  { belongsTo: 'Cloud', keyword: 'aws' },
-  { belongsTo: 'Cloud', keyword: 'gcp' },
-  { belongsTo: 'Cloud', keyword: 'azure' },
-  { belongsTo: 'Cloud', keyword: 'firebase' }
+  { belongsTo: 'Cloud', name: 'aws' },
+  { belongsTo: 'Cloud', name: 'gcp' },
+  { belongsTo: 'Cloud', name: 'azure' },
+  { belongsTo: 'Cloud', name: 'firebase' }
 ];
 export const test = [
-  { belongsTo: 'Test', keyword: 'jest' },
-  { belongsTo: 'Test', keyword: 'vitest' },
-  { belongsTo: 'Test', keyword: 'playwright' },
-  { belongsTo: 'Test', keyword: 'cypress' },
-  { belongsTo: 'Test', keyword: 'unit test' },
-  { belongsTo: 'Test', keyword: 'unit testing' },
-  { belongsTo: 'Test', keyword: 'end-to-end testing' },
-  { belongsTo: 'Test', keyword: 'e2e test' }
+  { belongsTo: 'Test', name: 'jest' },
+  { belongsTo: 'Test', name: 'vitest' },
+  { belongsTo: 'Test', name: 'playwright' },
+  { belongsTo: 'Test', name: 'cypress' },
+  { belongsTo: 'Test', name: 'unit test' },
+  { belongsTo: 'Test', name: 'unit testing' },
+  { belongsTo: 'Test', name: 'end-to-end testing' },
+  { belongsTo: 'Test', name: 'e2e test' }
 ];
 export const db = [
-  { belongsTo: 'Database', keyword: 'mongodb' },
-  { belongsTo: 'Database', keyword: 'mongoose' },
-  { belongsTo: 'Database', keyword: 'sql' },
-  { belongsTo: 'Database', keyword: 'mysql' },
-  { belongsTo: 'Database', keyword: 'postgresql' }
+  { belongsTo: 'Database', name: 'mongodb' },
+  { belongsTo: 'Database', name: 'mongoose' },
+  { belongsTo: 'Database', name: 'sql' },
+  { belongsTo: 'Database', name: 'mysql' },
+  { belongsTo: 'Database', name: 'postgresql' }
 ];
 export const tools = [
-  { belongsTo: 'Tools', keyword: 'vite' },
-  { belongsTo: 'Tools', keyword: 'webpack' },
-  { belongsTo: 'Tools', keyword: 'gulp' },
-  { belongsTo: 'Tools', keyword: 'babel' }
+  { belongsTo: 'Tools', name: 'vite' },
+  { belongsTo: 'Tools', name: 'webpack' },
+  { belongsTo: 'Tools', name: 'gulp' },
+  { belongsTo: 'Tools', name: 'babel' }
 ];
 export const devop = [
-  { belongsTo: 'Devop', keyword: 'docker' },
-  { belongsTo: 'Devop', keyword: 'kubernetes' },
-  { belongsTo: 'Devop', keyword: 'k8s' }
+  { belongsTo: 'Devop', name: 'docker' },
+  { belongsTo: 'Devop', name: 'kubernetes' },
+  { belongsTo: 'Devop', name: 'k8s' }
 ];
 export const infoSec = [
-  { belongsTo: 'InfoSec', keyword: 'xss' },
-  { belongsTo: 'InfoSec', keyword: 'cors' },
-  { belongsTo: 'InfoSec', keyword: 'csrf' }
+  { belongsTo: 'InfoSec', name: 'xss' },
+  { belongsTo: 'InfoSec', name: 'cors' },
+  { belongsTo: 'InfoSec', name: 'csrf' }
 ]
 export const other = [
-  { belongsTo: 'Other', keyword: 'graphql' },
-  { belongsTo: 'Other', keyword: 'websocket' },
-  { belongsTo: 'Other', keyword: 'webrtc' },
-  { belongsTo: 'Other', keyword: 'agile' },
-  { belongsTo: 'Other', keyword: '敏捷' },
-  { belongsTo: 'Other', keyword: 'seo' },
-  { belongsTo: 'Other', keyword: 'git' },
-  { belongsTo: 'Other', keyword: 'github' },
-  { belongsTo: 'Other', keyword: 'gitlab' },
-  { belongsTo: 'Other', keyword: '性能' },
-  { belongsTo: 'Other', keyword: '效能優化' },
-  { belongsTo: 'Other', keyword: 'csr' },
-  { belongsTo: 'Other', keyword: 'ssr' },
-  { belongsTo: 'Other', keyword: 'ssg' },
-  { belongsTo: 'Other', keyword: 'server side rendering' },
-  { belongsTo: 'Other', keyword: 'static site generation' },
-  { belongsTo: 'Other', keyword: 'clean code' },
-  { belongsTo: 'Other', keyword: 'solid' },
-  { belongsTo: 'Other', keyword: 'ci/cd' },
-  { belongsTo: 'Other', keyword: 'cicd' },
-  { belongsTo: 'Other', keyword: 'gitlab ci/cd' },
-  { belongsTo: 'Other', keyword: 'code review' },
-  { belongsTo: 'Other', keyword: 'linux' },
-  { belongsTo: 'Other', keyword: 'tdd' }
+  { belongsTo: 'Other', name: 'graphql' },
+  { belongsTo: 'Other', name: 'websocket' },
+  { belongsTo: 'Other', name: 'webrtc' },
+  { belongsTo: 'Other', name: 'agile' },
+  { belongsTo: 'Other', name: '敏捷' },
+  { belongsTo: 'Other', name: 'seo' },
+  { belongsTo: 'Other', name: 'git' },
+  { belongsTo: 'Other', name: 'github' },
+  { belongsTo: 'Other', name: 'gitlab' },
+  { belongsTo: 'Other', name: '性能' },
+  { belongsTo: 'Other', name: '效能優化' },
+  { belongsTo: 'Other', name: 'csr' },
+  { belongsTo: 'Other', name: 'ssr' },
+  { belongsTo: 'Other', name: 'ssg' },
+  { belongsTo: 'Other', name: 'server side rendering' },
+  { belongsTo: 'Other', name: 'static site generation' },
+  { belongsTo: 'Other', name: 'clean code' },
+  { belongsTo: 'Other', name: 'solid' },
+  { belongsTo: 'Other', name: 'ci/cd' },
+  { belongsTo: 'Other', name: 'cicd' },
+  { belongsTo: 'Other', name: 'gitlab ci/cd' },
+  { belongsTo: 'Other', name: 'code review' },
+  { belongsTo: 'Other', name: 'linux' },
+  { belongsTo: 'Other', name: 'tdd' }
 ];
 
 

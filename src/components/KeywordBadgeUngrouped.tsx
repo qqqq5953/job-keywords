@@ -6,67 +6,36 @@ import { Button } from './ui/button';
 
 type Props = {
   keyword: Keyword
-  tabInfo: Record<string, Record<string, Keyword[]>>
-  setTabInfo: Dispatch<SetStateAction<Record<string, Record<string, Keyword[]>>>>
-  currentTab: string
+  setKeywords: Dispatch<SetStateAction<Keyword[]>>
 }
 
-export default function KeywordBadge(props: Props) {
-  const {
-    belongsTo: groupName,
-    name: currentKeyword
-  } = props.keyword
+export default function KeywordBadgeUngrouped(props: Props) {
+  const { name: currentKeyword } = props.keyword
 
   const [isEditing, setIsEditing] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
 
   function editKeyword(newKeyword: string) {
-    console.log('newKeyword', newKeyword);
-
     if (!newKeyword || currentKeyword === newKeyword) return setIsEditing(false);
 
-    const group = props.tabInfo[props.currentTab][groupName]
-    console.log('group', group);
+    props.setKeywords(prev => {
+      const isKeywordAlreadyExist = prev.some(keyword => keyword.name === newKeyword)
 
-    const isKeywordAlreadyExist = [...group].some(keyword => keyword.name === newKeyword)
+      if (isKeywordAlreadyExist) return prev;
 
-    console.log('isKeywordAlreadyExist', isKeywordAlreadyExist);
-
-    if (isKeywordAlreadyExist) return setIsEditing(false);
-
-    props.setTabInfo(prev => {
-      const updatedGroup = prev[props.currentTab][groupName].map(group => {
-        // find target keyword and change it
-        if (group.name === currentKeyword) {
-          return { ...group, name: newKeyword };
-        }
-
-        return group;
-      });
-
-      return {
-        ...prev,
-        [props.currentTab]: {
-          ...prev[props.currentTab],
-          [groupName]: updatedGroup,
-        }
-      }
+      return prev.map(keyword =>
+        keyword.name === currentKeyword ?
+          { ...keyword, name: newKeyword } :
+          keyword
+      );
     });
 
     setIsEditing(false)
   }
 
   function deleteKeyword() {
-    props.setTabInfo(prev => {
-      const updatedGroup = prev[props.currentTab][groupName].filter(keyword => keyword.name !== currentKeyword);
-
-      return {
-        ...prev,
-        [props.currentTab]: {
-          ...prev[props.currentTab],
-          [groupName]: updatedGroup,
-        }
-      };
+    props.setKeywords(prev => {
+      return prev.filter(keyword => keyword.name !== currentKeyword)
     });
   }
 
