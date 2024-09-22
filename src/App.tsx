@@ -3,9 +3,16 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Switch } from "@/components/ui/switch"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
-import { RiAddLargeFill } from "react-icons/ri";
+import { RiAddLargeFill, RiDeleteBinLine, RiEditLine } from "react-icons/ri";
 import { MdOutlineLibraryAdd } from "react-icons/md";
+import { BsThreeDots } from "react-icons/bs";
 
 import { backend, cloud, css, db, devop, framework, infoSec, languages, libraries, other, stateManagement, test, tools } from "./lib/defaultCategories";
 import KeywordBadge from "./components/KeywordBadge";
@@ -63,7 +70,7 @@ function App() {
     });
   }
 
-  function deactivate() {
+  function deactivate(isChecked: boolean) {
     chrome.tabs?.query({ active: true, currentWindow: true }, (tabs) => {
       const activeTabId = tabs[0]?.id;
 
@@ -72,14 +79,15 @@ function App() {
         from: 'popup',
         tabId: activeTabId
       }, response => {
-        if (response.status === "deactivate") {
-          alert('deactivate success')
-        }
+        const state = response.status === "deactivate" ? isChecked : !isChecked
+
+        setIsActivate(state)
+        chrome.storage?.local.set({ switchState: state });
       });
     });
   }
 
-  function activate() {
+  function activate(isChecked: boolean) {
     chrome.tabs?.query({ active: true, currentWindow: true }, (tabs) => {
       const activeTabId = tabs[0]?.id;
 
@@ -88,25 +96,24 @@ function App() {
         from: 'popup',
         tabId: activeTabId
       }, response => {
-        if (response.status === "activate") {
-          alert('activate success')
-        }
+        const state = response.status === "activate" ? isChecked : !isChecked
+
+        setIsActivate(state)
+        chrome.storage?.local.set({ switchState: state });
       });
     });
   }
 
   function handleToggle(isChecked: boolean) {
-    setIsActivate(isChecked)
-
     if (isChecked) {
-      activate()
+      activate(isChecked)
     } else {
-      deactivate()
+      deactivate(isChecked)
     }
-
-    // Save the new state to Chrome storage
-    chrome.storage?.local.set({ switchState: isChecked });
   };
+
+  function editGroupName(_groupName: string) {
+  }
 
   useEffect(() => {
     // Load the switch state from Chrome storage when the component mounts
@@ -159,14 +166,31 @@ function App() {
               {Object.entries(selectedTabInfo).map(([groupName, categorySet]) => (
                 <li key={groupName} className="relative flex flex-col gap-4 items-center p-4 rounded-lg bg-neutral-50 shadow-md shadow-neutral-200 border border-neutral-100">
                   <div className="font-semibold shrink-0">{groupName}</div>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => addKeyword(groupName)}
-                    className="absolute right-6 top-3 hover:text-orange-500 duration-300"
-                  >
-                    <RiAddLargeFill size={16} />
-                  </Button>
+
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="absolute right-4 top-3"
+                      >
+                        <BsThreeDots />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem
+                        className="gap-1"
+                        onClick={() => editGroupName(groupName)}
+                      >
+                        <RiEditLine />Edit Group Name
+                      </DropdownMenuItem>
+                      <DropdownMenuItem className="gap-1">
+                        <RiDeleteBinLine />Delete Group
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+
+
                   <div className="flex gap-2.5 items-center flex-wrap">
                     {Array.from(categorySet).map((keyword, index) => (
                       <KeywordBadge
@@ -177,6 +201,14 @@ function App() {
                         currentTab={currentTab}
                       />
                     ))}
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => addKeyword(groupName)}
+                      className="text-blue-600 hover:text-blue-500 duration-300"
+                    >
+                      <RiAddLargeFill size={14} />
+                    </Button>
                   </div>
                 </li>
               ))}
