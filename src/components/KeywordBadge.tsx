@@ -103,10 +103,10 @@ export default function KeywordBadge(props: Props) {
       <Button
         size="sm"
         variant="ghost"
-        className='p-1 size-auto'
+        className='p-1 size-auto text-neutral-500 hover:bg-transparent group'
         onClick={deleteKeyword}
       >
-        <RxCross1 size={12} />
+        <RxCross1 size={12} className='group-hover:text-blue-500 group-hover:stroke-1' />
       </Button>
     </Badge>
   )

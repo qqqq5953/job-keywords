@@ -125,7 +125,7 @@ export default function DialogAddGroup(props: Props) {
       <DialogTrigger asChild>
         <Button
           variant="outline"
-          className="w-full text-xs mb-4 gap-1"
+          className="w-full text-xs mb-4 gap-1 hover:text-blue-600"
         >
           <MdPostAdd size={16} /> Add Group
         </Button>
@@ -164,7 +164,7 @@ export default function DialogAddGroup(props: Props) {
         </div>
         <DialogFooter className="gap-2 pt-3">
           <Button variant="ghost" onClick={() => setIsOpen(false)}>Cancel</Button>
-          <Button className="bg-blue-600 hover:bg-blue-600/90" onClick={addGroup}>Add</Button>
+          <Button className="bg-blue-500 hover:bg-blue-500/90" onClick={addGroup}>Add</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

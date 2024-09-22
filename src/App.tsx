@@ -3,20 +3,12 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Switch } from "@/components/ui/switch"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 
-import { RiAddLargeFill, RiDeleteBinLine, RiEditLine } from "react-icons/ri";
 import { MdOutlineLibraryAdd } from "react-icons/md";
-import { BsThreeDots } from "react-icons/bs";
 
 import { backend, cloud, css, db, devop, framework, infoSec, languages, libraries, other, stateManagement, test, tools } from "./lib/defaultCategories";
-import KeywordBadge from "./components/KeywordBadge";
 import DialogAddGroup from "./components/DialogAddGroup";
+import Group from "./components/Group";
 
 function App() {
   const [isActivate, setIsActivate] = useState(false)
@@ -42,33 +34,6 @@ function App() {
   });
 
   const selectedTabInfo = tabInfo[currentTab]
-
-  function addKeyword(groupName: string) {
-    setTabInfo(prev => {
-      let count = 0;
-      let newKeyword = "New Keyword";
-
-      // Check for existing keywords in the category
-      const existingKeywords = prev[currentTab][groupName].map(keyword => keyword.name);
-
-      // Count how many "New Keyword" entries exist and find a unique keyword
-      while (existingKeywords.indexOf(newKeyword) !== -1) {
-        count++;
-        newKeyword = `New Keyword${count}`;
-      }
-
-      return {
-        ...prev,
-        [currentTab]: {
-          ...prev[currentTab],
-          [groupName]: [...prev[currentTab][groupName], {
-            belongsTo: groupName,
-            name: newKeyword
-          }],
-        }
-      };
-    });
-  }
 
   function deactivate(isChecked: boolean) {
     chrome.tabs?.query({ active: true, currentWindow: true }, (tabs) => {
@@ -112,9 +77,6 @@ function App() {
     }
   };
 
-  function editGroupName(_groupName: string) {
-  }
-
   useEffect(() => {
     // Load the switch state from Chrome storage when the component mounts
     chrome.storage?.local.get('switchState', (result) => {
@@ -140,15 +102,12 @@ function App() {
       <div className="text-xs">
         Todo:
         <ul className="list-disc list-inside">
-          <li>每個關鍵字加上 category 紀錄屬於哪個類別：
-            <div>1. 改變儲存標籤的資料結構以減少 CRUD 時間複雜度</div>
-            <div>2. 前台可以用 groupBy() 分類標籤</div>
-          </li>
+          <li>Detect css class on screen size change</li>
         </ul>
       </div>
       <div className="relative">
         <Button className="absolute top-0 right-0 gap-1 text-xs hover:text-blue-600 hover:bg-transparent duration-300" variant="ghost">
-          <MdOutlineLibraryAdd size={16} /> Add Keyword
+          <MdOutlineLibraryAdd size={16} /> Add Category
         </Button>
 
         <Tabs value={currentTab} onValueChange={setCurrentTab}>
@@ -164,80 +123,17 @@ function App() {
 
             <ul className="flex flex-col gap-5">
               {Object.entries(selectedTabInfo).map(([groupName, categorySet]) => (
-                <li key={groupName} className="relative flex flex-col gap-4 items-center p-4 rounded-lg bg-neutral-50 shadow-md shadow-neutral-200 border border-neutral-100">
-                  <div className="font-semibold shrink-0">{groupName}</div>
-
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="absolute right-4 top-3"
-                      >
-                        <BsThreeDots />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem
-                        className="gap-1"
-                        onClick={() => editGroupName(groupName)}
-                      >
-                        <RiEditLine />Edit Group Name
-                      </DropdownMenuItem>
-                      <DropdownMenuItem className="gap-1">
-                        <RiDeleteBinLine />Delete Group
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-
-
-                  <div className="flex gap-2.5 items-center flex-wrap">
-                    {Array.from(categorySet).map((keyword, index) => (
-                      <KeywordBadge
-                        key={index}
-                        keyword={keyword}
-                        tabInfo={tabInfo}
-                        setTabInfo={setTabInfo}
-                        currentTab={currentTab}
-                      />
-                    ))}
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => addKeyword(groupName)}
-                      className="text-blue-600 hover:text-blue-500 duration-300"
-                    >
-                      <RiAddLargeFill size={14} />
-                    </Button>
-                  </div>
-                </li>
+                <Group
+                  key={groupName}
+                  groupName={groupName}
+                  currentTab={currentTab}
+                  tabInfo={tabInfo}
+                  setTabInfo={setTabInfo}
+                  categorySet={categorySet}
+                />
               ))}
-              {/* {programmingTab.map((category) => {
-              return <li key={category.name} className="relative flex flex-col gap-4 items-center bg-neutral-100 p-4 rounded-lg">
-                <div className="font-semibold shrink-0">{category.name}</div>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={() => addKeyword(category.name)}
-                  className="absolute right-6 top-3 hover:text-orange-500"
-                >
-                  <RiAddLargeFill size={16} />
-                </Button>
-                <div className="flex gap-2 items-center flex-wrap">
-                  {Array.from(category.keywords).map((keyword, index) => {
-                    return <KeywordBadge
-                      key={index}
-                      keyword={keyword}
-                      category={category}
-                      editKeyword={editKeyword}
-                      deleteKeyword={deleteKeyword}
-                    />
-                  })}
-                </div>
-              </li>
-            })} */}
             </ul >
-            <pre className="text-xs">{JSON.stringify(tabInfo, null, 2)}</pre>
+            {/* <pre className="text-xs">{JSON.stringify(tabInfo, null, 2)}</pre> */}
           </TabsContent >
         </Tabs >
       </div >
