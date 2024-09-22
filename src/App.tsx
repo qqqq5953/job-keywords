@@ -204,12 +204,12 @@ function App() {
                 </div>
               </li>
             })} */}
-            </ul>
+            </ul >
             <pre className="text-xs">{JSON.stringify(tabInfo, null, 2)}</pre>
-          </TabsContent>
-        </Tabs>
-      </div>
-    </div>
+          </TabsContent >
+        </Tabs >
+      </div >
+    </div >
   );
 }
 
