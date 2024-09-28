@@ -1,4 +1,4 @@
-const framework = ["reactjs", "react.js", "react", "react hook", "react hooks", "react native", "next.js", "nextjs", "vue", "vue.js", "vuejs", "vue2", "vue3", "nuxt.js", "nuxtjs", "gatsby"];
+const framework = ["reactjs", "react.js", "react", "react hook", "react hooks", "react native", "next.js", "nextjs", "vue", "vue.js", "vuejs", "vue2", "vue3", "nuxt.js", "nuxtjs", "gatsby", "angular", "angular.js"];
 const stateManagement = ["vuex", "pinia", "redux", "rtk", "redux toolkit", "zustand"];
 const languages = [
   "javascript", "typescript", "ts", "js"
@@ -97,14 +97,18 @@ export function mergeSkillsAndKeywords(
 
 export function getSplitWords(text: string, singleWordKeywords: Set<string>, multiWordKeywords: Set<string>): string[] {
   if (isChineseContent(text)) {
-    return splitMixedText(text, singleWordKeywords);
+    return splitMixedText(text, singleWordKeywords, multiWordKeywords);
   } else {
     return splitEnglishText(text, singleWordKeywords, multiWordKeywords);
   }
 }
 
 // Improved function to split mixed Chinese and English text
-function splitMixedText(text: string, singleWordKeywords: Set<string>): string[] {
+function splitMixedText(
+  text: string,
+  singleWordKeywords: Set<string>,
+  multiWordKeywords: Set<string>
+): string[] {
   // const regex = /[\u4e00-\u9fa5]+|[A-Za-z]+(?:[ ]+[A-Za-z]+)*|[\p{P}\p{Z}]+/gu;
   const regex = /[\u4e00-\u9fa5]+|[a-zA-Z0-9.-/]+(?:[ ]+[a-zA-Z0-9.-/]+)*|[\p{P}\p{Z}]/gu;
 
@@ -131,15 +135,16 @@ function splitMixedText(text: string, singleWordKeywords: Set<string>): string[]
       const lowerCaseTrimCleanedWord = trimCleanedWord.toLowerCase();
       console.log('lowerCaseTrimCleanedWord', lowerCaseTrimCleanedWord);
 
-      const [first, second] = lowerCaseTrimCleanedWord.split("/")
+      const splitedWord = lowerCaseTrimCleanedWord.split("/")
 
-      if (first && singleWordKeywords.has(first.trim())) {
-        foundKeywords.add(first);
-      }
-
-      if (second && singleWordKeywords.has(second.trim())) {
-        foundKeywords.add(second);
-      }
+      splitedWord.forEach(word => {
+        if (
+          word && singleWordKeywords.has(word.trim()) ||
+          word && multiWordKeywords.has(word.trim())
+        ) {
+          foundKeywords.add(word.trim());
+        }
+      })
 
       if (keywordSet.has(lowerCaseTrimCleanedWord)) {
         foundKeywords.add(lowerCaseTrimCleanedWord);
