@@ -54,6 +54,9 @@ export default function KeywordBadge(props: Props) {
     });
 
     setIsEditing(false)
+
+    // rerun init() function here
+    // have to setup data to localstorage or db first
   }
 
   function deleteKeyword() {

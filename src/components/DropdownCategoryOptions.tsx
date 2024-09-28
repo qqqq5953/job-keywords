@@ -6,18 +6,18 @@ import {
 } from "@/components/ui/dropdown-menu"
 
 import { BsThreeDots } from "react-icons/bs"
-import { RiDeleteBinLine } from "react-icons/ri"
+import { RiDeleteBinLine, RiEditLine } from "react-icons/ri"
 import { Button } from "./ui/button"
 import { Dispatch, SetStateAction, useState } from "react"
-import DialogDeleteGroup from "./DialogDeleteGroup"
+import DialogDeleteCategory from "./DialogDeleteCategory"
 
 type Props = {
-  groupName: string
   currentTab: string
+  setCurrentTab: Dispatch<SetStateAction<string>>
   setTabInfo: Dispatch<SetStateAction<Record<string, Record<string, Keyword[]>>>>
 }
 
-export default function DropdownGroupOptions(props: Props) {
+export default function DropdownCategoryOptions(props: Props) {
   const [isOpen, setIsOpen] = useState(false)
 
   return (
@@ -25,25 +25,28 @@ export default function DropdownGroupOptions(props: Props) {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
-            size="sm"
+            className="text-neutral-700 hover:text-blue-600 duration-300"
             variant="ghost"
-            className="absolute right-4 top-3"
+            size="sm"
           >
             <BsThreeDots />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuItem className="gap-1" onClick={() => setIsOpen(true)}>
+            <RiEditLine />Rename
+          </DropdownMenuItem>
+          <DropdownMenuItem className="gap-1" onClick={() => setIsOpen(true)}>
             <RiDeleteBinLine />Delete
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <DialogDeleteGroup
+      <DialogDeleteCategory
         isOpen={isOpen}
         setIsOpen={setIsOpen}
         currentTab={props.currentTab}
-        groupName={props.groupName}
+        setCurrentTab={props.setCurrentTab}
         setTabInfo={props.setTabInfo}
       />
     </>

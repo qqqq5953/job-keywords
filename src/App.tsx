@@ -9,6 +9,7 @@ import { MdOutlineLibraryAdd } from "react-icons/md";
 import { backend, cloud, css, db, devop, framework, infoSec, languages, libraries, other, stateManagement, test, tools } from "./lib/defaultCategories";
 import DialogAddGroup from "./components/DialogAddGroup";
 import Group from "./components/Group";
+import DropdownCategoryOptions from "./components/DropdownCategoryOptions";
 
 function App() {
   const [isActivate, setIsActivate] = useState(false)
@@ -33,6 +34,7 @@ function App() {
     }
   });
 
+  const tabs = Object.keys(tabInfo)
   const selectedTabInfo = tabInfo[currentTab]
 
   function deactivate(isChecked: boolean) {
@@ -86,6 +88,26 @@ function App() {
     });
   }, []);
 
+  function addCategory() {
+    let newTitle = "Untitled";
+
+    setTabInfo(prev => {
+      let count = 0;
+
+      while (tabs.indexOf(newTitle) !== -1) {
+        count++;
+        newTitle = `Untitled${count}`;
+      }
+
+      return {
+        ...prev,
+        [newTitle]: {}
+      }
+    })
+
+    setCurrentTab(newTitle)
+  }
+
   return (
     <div className='flex flex-col items-center justify-center p-4 gap-4'>
       <div className="relative w-full">
@@ -103,18 +125,46 @@ function App() {
         Todo:
         <ul className="list-disc list-inside">
           <li>Detect css class on screen size change</li>
+          <li>https://www.104.com.tw/job/3twld?jobsource=tab_cs_to_job 中文抓不到關鍵字如 jquery / React Native</li>
         </ul>
       </div>
-      <div className="relative">
-        <Button className="absolute top-0 right-0 gap-1 text-xs hover:text-blue-600 hover:bg-transparent duration-300" variant="ghost">
-          <MdOutlineLibraryAdd size={16} /> Add Category
-        </Button>
+      <Tabs value={currentTab} onValueChange={setCurrentTab} className="w-full">
+        <div className="flex items-center">
+          <div className="max-w-[400px] overflow-auto pt-4 pb-4">
+            <TabsList className="grow flex justify-start w-fit">
+              {[...tabs].reverse().map(tab => {
+                return <TabsTrigger
+                  key={tab}
+                  value={tab}
+                  className="capitalize"
+                >
+                  {tab}
+                </TabsTrigger>
+              })}
+            </TabsList>
+          </div>
+          <div className="shrink-0 grow flex items-center justify-between">
+            <Button
+              className="text-neutral-700 hover:text-blue-600 hover:bg-transparent duration-300"
+              variant="ghost"
+              onClick={addCategory}
+            >
+              <MdOutlineLibraryAdd size={20} />
+            </Button>
+            <DropdownCategoryOptions
+              currentTab={currentTab}
+              setCurrentTab={setCurrentTab}
+              setTabInfo={setTabInfo}
+            />
+          </div>
+        </div>
 
-        <Tabs value={currentTab} onValueChange={setCurrentTab}>
-          <TabsList>
-            <TabsTrigger value="programming" className="capitalize">{currentTab}</TabsTrigger>
-          </TabsList>
-          <TabsContent value="programming" className="pt-8 border-t">
+        {tabs.map(tab => {
+          return <TabsContent
+            key={tab}
+            value={tab}
+            className="pt-8 border-t"
+          >
             <DialogAddGroup
               tabInfo={tabInfo}
               setTabInfo={setTabInfo}
@@ -135,8 +185,8 @@ function App() {
             </ul >
             {/* <pre className="text-xs">{JSON.stringify(tabInfo, null, 2)}</pre> */}
           </TabsContent >
-        </Tabs >
-      </div >
+        })}
+      </Tabs >
     </div >
   );
 }
