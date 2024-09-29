@@ -125,7 +125,6 @@ function App() {
         Todo:
         <ul className="list-disc list-inside">
           <li>Detect css class on screen size change</li>
-          <li>https://www.104.com.tw/job/3twld?jobsource=tab_cs_to_job 中文抓不到關鍵字如 jquery / React Native</li>
         </ul>
       </div>
       <Tabs value={currentTab} onValueChange={setCurrentTab} className="w-full">

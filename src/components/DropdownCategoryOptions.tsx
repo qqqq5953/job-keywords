@@ -10,6 +10,7 @@ import { RiDeleteBinLine, RiEditLine } from "react-icons/ri"
 import { Button } from "./ui/button"
 import { Dispatch, SetStateAction, useState } from "react"
 import DialogDeleteCategory from "./DialogDeleteCategory"
+import DialogRenameCategory from "./DialogRenameCategory"
 
 type Props = {
   currentTab: string
@@ -18,7 +19,8 @@ type Props = {
 }
 
 export default function DropdownCategoryOptions(props: Props) {
-  const [isOpen, setIsOpen] = useState(false)
+  const [isOpenRename, setIsOpenRename] = useState(false)
+  const [isOpenDelete, setIsOpenDelete] = useState(false)
 
   return (
     <>
@@ -33,18 +35,26 @@ export default function DropdownCategoryOptions(props: Props) {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuItem className="gap-1" onClick={() => setIsOpen(true)}>
+          <DropdownMenuItem className="gap-1" onClick={() => setIsOpenRename(true)}>
             <RiEditLine />Rename
           </DropdownMenuItem>
-          <DropdownMenuItem className="gap-1" onClick={() => setIsOpen(true)}>
+          <DropdownMenuItem className="gap-1" onClick={() => setIsOpenDelete(true)}>
             <RiDeleteBinLine />Delete
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
+      <DialogRenameCategory
+        isOpen={isOpenRename}
+        setIsOpen={setIsOpenRename}
+        currentTab={props.currentTab}
+        setCurrentTab={props.setCurrentTab}
+        setTabInfo={props.setTabInfo}
+      />
+
       <DialogDeleteCategory
-        isOpen={isOpen}
-        setIsOpen={setIsOpen}
+        isOpen={isOpenDelete}
+        setIsOpen={setIsOpenDelete}
         currentTab={props.currentTab}
         setCurrentTab={props.setCurrentTab}
         setTabInfo={props.setTabInfo}

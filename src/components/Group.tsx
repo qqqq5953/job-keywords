@@ -45,8 +45,8 @@ export default function Group(props: Props) {
     });
   }
 
-  function editGroupName(newGroupName: string) {
-    if (!newGroupName || props.groupName === newGroupName) {
+  function renameGroupName(newGroupName: string) {
+    if (!newGroupName || props.groupName.trim().toLocaleLowerCase() === newGroupName.toLocaleLowerCase()) {
       return setIsEditing(false);
     }
 
@@ -92,10 +92,10 @@ export default function Group(props: Props) {
                 defaultValue={props.groupName}
                 ref={groupNameRef}
                 className='h-auto min-w-0 text-xs shadow-none focus-within:border-none px-2 py-1'
-                onBlur={(e) => editGroupName(e.target.value.trim())}
+                onBlur={(e) => renameGroupName(e.target.value.trim())}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
-                    editGroupName(groupNameRef.current!.value.trim())
+                    renameGroupName(groupNameRef.current!.value.trim())
                   } else if (e.key === "Escape") {
                     setIsEditing(false)
                   }
