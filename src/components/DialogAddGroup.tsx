@@ -155,9 +155,9 @@ export default function DialogAddGroup(props: Props) {
               size="sm"
               variant="ghost"
               onClick={addKeyword}
-              className="gap-1 hover:text-blue-600 hover:bg-transparent duration-300 ml-2"
+              className="text-neutral-500 group duration-300 ml-2"
             >
-              <RiAddLargeFill /> Add Keyword
+              <RiAddLargeFill size={14} className='group-hover:stroke-1 group-hover:text-blue-500' />
             </Button>
           </div>
           {alert.keywords && <div className='text-amber-500 text-xs ml-1'>{alert.keywords}</div>}

@@ -16,7 +16,7 @@ function App() {
   const [currentTab, setCurrentTab] = useState("programming")
 
   // Change the state to use an object to manage categories and keywords
-  const [tabInfo, setTabInfo] = useState<Record<string, Record<string, Keyword[]>>>({
+  const [tabInfo, setTabInfo] = useState<TabInfo>({
     programming: {
       "Frontend Languages": languages,
       "Frontend Framework": framework,
@@ -36,6 +36,8 @@ function App() {
 
   const tabs = Object.keys(tabInfo)
   const selectedTabInfo = tabInfo[currentTab]
+  const [status, setStatus] = useState("")
+
 
   function deactivate(isChecked: boolean) {
     chrome.tabs?.query({ active: true, currentWindow: true }, (tabs) => {
@@ -67,6 +69,15 @@ function App() {
 
         setIsActivate(state)
         chrome.storage?.local.set({ switchState: state });
+
+        chrome.storage?.local.get('tabInfo', (result) => {
+          if (result.tabInfo !== undefined) {
+            setStatus(JSON.stringify(result.tabInfo))
+          } else {
+            // get tabInfo from init
+            setStatus(JSON.stringify(response.data))
+          }
+        });
       });
     });
   }
@@ -78,15 +89,6 @@ function App() {
       deactivate(isChecked)
     }
   };
-
-  useEffect(() => {
-    // Load the switch state from Chrome storage when the component mounts
-    chrome.storage?.local.get('switchState', (result) => {
-      if (result.switchState !== undefined) {
-        setIsActivate(result.switchState);
-      }
-    });
-  }, []);
 
   function addCategory() {
     let newTitle = "Untitled";
@@ -108,6 +110,43 @@ function App() {
     setCurrentTab(newTitle)
   }
 
+
+  function clearStorage() {
+    chrome.storage?.local.clear(function () {
+      const error = chrome.runtime.lastError;
+      if (error) {
+        setStatus(error.message ?? "clear failed")
+      } else {
+        setStatus("clear success")
+      }
+    });
+  }
+
+  useEffect(() => {
+    // Load the switch state from Chrome storage when the component mounts
+    chrome.storage?.local.get('switchState', (result) => {
+      if (result.switchState !== undefined) {
+        setIsActivate(result.switchState);
+      }
+    });
+
+    chrome.storage?.local.get('tabInfo', (result) => {
+      if (result.tabInfo !== undefined) {
+        setStatus(JSON.stringify(result.tabInfo))
+      }
+    });
+  }, []);
+
+  function getLocal() {
+    chrome.runtime.sendMessage({
+      status: 'storageStatus',
+      from: 'popup',
+      data: null
+    }, response => {
+      setStatus(JSON.stringify(response.data))
+    });
+  }
+
   return (
     <div className='flex flex-col items-center justify-center p-4 gap-4'>
       <div className="relative w-full">
@@ -120,10 +159,15 @@ function App() {
           />
         </div>
       </div>
+      <Button onClick={clearStorage}>clearStorage</Button>
+      <div>{status}</div>
+      <Button onClick={getLocal}>get local</Button>
       <p className="text-neutral-600 text-center">An extension for 104 job search website to extract <span className="font-semibold">ENGLISH</span> keywords from job description. Default to programming job.</p>
       <div className="text-xs">
         Todo:
         <ul className="list-disc list-inside">
+          <li>Store variable in localstorage</li>
+          <li>Use redux</li>
           <li>Detect css class on screen size change</li>
         </ul>
       </div>
@@ -170,7 +214,7 @@ function App() {
               currentTab={currentTab}
             />
 
-            <ul className="flex flex-col gap-5">
+            {selectedTabInfo && <ul className="flex flex-col gap-5">
               {Object.entries(selectedTabInfo).map(([groupName, categorySet]) => (
                 <Group
                   key={groupName}
@@ -181,7 +225,7 @@ function App() {
                   categorySet={categorySet}
                 />
               ))}
-            </ul >
+            </ul >}
             {/* <pre className="text-xs">{JSON.stringify(tabInfo, null, 2)}</pre> */}
           </TabsContent >
         })}

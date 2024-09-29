@@ -48,3 +48,18 @@ export default tseslint.config({
   },
 })
 ```
+
+## activate from popup
+
+- send to background.ts handlePopup -> activateExtension
+  - executeScript 
+    - use cache
+      - send cache to contentScript.ts
+      - response "activateSuccess" to background.ts and pass it to popup
+    - not use cache
+      - init
+      - response "activateSuccess" to background.ts and pass it to popup
+
+
+## switch tab
+## refresh tab

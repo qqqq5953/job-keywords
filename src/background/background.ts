@@ -4,7 +4,7 @@ import inactive128 from '../assets/inactive_128.png';
 type KeywordBadges = string
 
 const tabKeywordBadgesCache: { [tab: number]: KeywordBadges } = {};
-const activeTabs: { [tab: number]: boolean } = {};
+// const activeTabs: { [tab: number]: boolean } = {};
 
 chrome.runtime.onInstalled.addListener((details) => {
   console.log('Job Info Extractor Extension Installed', details);
@@ -40,6 +40,8 @@ function handleOnSuccessDataFetched(
   message: Message,
   sender: chrome.runtime.MessageSender
 ) {
+  console.log('handleOnSuccessDataFetched');
+
   if (!sender.tab || !sender.tab.id) return;
 
   const tabId = sender.tab.id;
@@ -114,6 +116,7 @@ function activateExtension(tabId: number | undefined, sendResponse?: (response?:
     files: ['assets/content.js'] // Ensure content script runs when clicking the extension icon
   }, _response => {
     console.log('activate executeScript');
+
     chrome.action.setPopup({
       popup: "index.html"
     })
@@ -123,16 +126,29 @@ function activateExtension(tabId: number | undefined, sendResponse?: (response?:
     chrome.tabs.sendMessage(tabId, {
       status: 'activate',
       from: 'serviceWorker',
-      data: tabKeywordBadgesCache[tabId] ?? null
+      data: tabKeywordBadgesCache[tabId] || null
     }).then((res) => {
-      // Respond to popup
+      console.log('res from contentScript', res);
+
+      // store skillBadges to cache
+      if (res?.data?.skillBadges) {
+        tabKeywordBadgesCache[tabId] = res.data.skillBadges
+      }
+
+      console.log('check cache ', tabKeywordBadgesCache);
+
       if (sendResponse) {
-        sendResponse(res);
+        console.log('send to popup on popup trigger');
+        sendResponse({
+          ...res,
+          data: res.data.tabInfo
+        });
       } else {
+        console.log('send to popup on update');
         chrome.runtime.sendMessage({
-          status: 'activateSuccess',
-          from: 'serviceWorker',
-          tabId: tabId
+          from: 'activateSuccess',
+          status: 'serviceWorker',
+          data: res.data.tabInfo
         });
       }
     }).catch(err => {
@@ -141,13 +157,13 @@ function activateExtension(tabId: number | undefined, sendResponse?: (response?:
       setIcon(tabId, inactive128)
       chrome.runtime.sendMessage({
         from: 'serviceWorker',
-        status: 'deactivateFailed',
+        status: 'activateFailed',
         tabId: tabId,
         data: err
       });
     });
 
-    activeTabs[tabId] = true;
+    // activeTabs[tabId] = true;
   });
 }
 
@@ -182,7 +198,7 @@ function deactivateExtension(tabId: number | undefined, sendResponse?: (response
     });
   });
 
-  activeTabs[tabId] = false;
+  // activeTabs[tabId] = false;
 }
 
 function setIcon(tabId: number, icon: string) {
@@ -208,23 +224,30 @@ function isIn104Website(tabUrl: string | undefined) {
   return tabUrl?.includes('https://www.104.com.tw/job')
 }
 
+// switch tab
 chrome.tabs.onActivated.addListener((activeInfo) => {
   console.log('activeInfo', activeInfo);
   const tabId = activeInfo.tabId;
 
   // Get information about the active tab
   chrome.tabs.get(tabId, (tab) => {
+    console.log('tab', tab);
+
     const tabUrl = tab.url || ''; // Ensure the URL is available
 
     if (!isIn104Website(tabUrl)) {
       return console.log('Non-job-search tab activated, ignoring.');
     }
 
+    console.log('tabId', tabId);
     toggleExtension(tabId) // toggle on switch tab
   })
 });
 
+// refresh tab
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+  console.log('onUpdated', tabId);
+
   if (changeInfo.status !== 'complete' || !isIn104Website(tab.url)) return
 
   toggleExtension(tabId) // toggle on create new tab
@@ -232,6 +255,6 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 
 chrome.tabs.onRemoved.addListener((tabId) => {
   delete tabKeywordBadgesCache[tabId];  // Clean up data when a tab is closed
-  delete activeTabs[tabId];  // Clean up data when a tab is closed
-  console.log('delete tabId', tabId, tabKeywordBadgesCache, activeTabs);
+  // delete activeTabs[tabId];  // Clean up data when a tab is closed
+  console.log('delete tabId', tabId, tabKeywordBadgesCache);
 });

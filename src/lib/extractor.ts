@@ -26,6 +26,7 @@ const devop = ["docker", "kubernetes", "k8s"];
 const infoSec = ["xss", "cors", "csrf"]
 const other = ["graphql", "websocket", "webrtc", "agile", "敏捷", "seo", "git", "github", "gitlab", "性能", "效能優化", "csr", "ssr", "ssg", "server side rendering", "static site generation", "clean code", "solid", "ci/cd", "cicd", "gitlab ci/cd", "code review", "linux", "tdd"];
 
+
 // Keywords stored in a Set for O(1) lookup time
 export const keywordSet = new Set([
   ...framework,
@@ -113,10 +114,10 @@ function splitMixedText(
   const regex = /[\u4e00-\u9fa5]+|[a-zA-Z0-9.-/]+(?:[ ]+[a-zA-Z0-9.-/]+)*|[\p{P}\p{Z}]/gu;
 
   const matchedText = text.match(regex) as RegExpMatchArray
-  console.log('matchedText', matchedText.slice(190, 220));
+  // console.log('matchedText', matchedText.slice(190, 220));
 
   const jobWords = matchedText.map(word => word.trim()).filter(Boolean);
-  console.log('jobWords', jobWords.slice(150, 190));
+  // console.log('jobWords', jobWords.slice(150, 190));
 
   const foundKeywords: Set<string> = new Set();
 
@@ -124,8 +125,8 @@ function splitMixedText(
   jobWords.forEach(word => {
     if (!containsChineseAndSymbols(word)) {
       const cleanedWord = cleanWord(word);
-      console.log('word', word);
-      console.log('cleanedWord', cleanedWord);
+      // console.log('word', word);
+      // console.log('cleanedWord', cleanedWord);
 
       // remove list marker
       const trimCleanedWord = cleanedWord.length > 1 && cleanedWord.startsWith('-') ?
@@ -133,7 +134,7 @@ function splitMixedText(
         cleanedWord.trim()
 
       const lowerCaseTrimCleanedWord = trimCleanedWord.toLowerCase();
-      console.log('lowerCaseTrimCleanedWord', lowerCaseTrimCleanedWord);
+      // console.log('lowerCaseTrimCleanedWord', lowerCaseTrimCleanedWord);
 
       const splitedWord = lowerCaseTrimCleanedWord.split("/")
 

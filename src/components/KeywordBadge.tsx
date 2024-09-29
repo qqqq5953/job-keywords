@@ -20,17 +20,11 @@ export default function KeywordBadge(props: Props) {
   const [isEditing, setIsEditing] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
 
-  function editKeyword(newKeyword: string) {
-    console.log('newKeyword', newKeyword);
-
+  function renameKeyword(newKeyword: string) {
     if (!newKeyword || currentKeyword === newKeyword) return setIsEditing(false);
 
     const group = props.tabInfo[props.currentTab][groupName]
-    console.log('group', group);
-
     const isKeywordAlreadyExist = [...group].some(keyword => keyword.name === newKeyword)
-
-    console.log('isKeywordAlreadyExist', isKeywordAlreadyExist);
 
     if (isKeywordAlreadyExist) return setIsEditing(false);
 
@@ -89,10 +83,10 @@ export default function KeywordBadge(props: Props) {
           defaultValue={currentKeyword}
           ref={inputRef}
           className="h-auto min-w-0 max-w-20 text-xs shadow-none focus-within:border-none px-2 py-1"
-          onBlur={(e) => editKeyword(e.target.value.trim())}
+          onBlur={(e) => renameKeyword(e.target.value.trim())}
           onKeyDown={(e) => {
             if (e.key === "Enter") {
-              editKeyword(inputRef.current!.value.trim())
+              renameKeyword(inputRef.current!.value.trim())
             } else if (e.key === "Escape") {
               setIsEditing(false)
             }
