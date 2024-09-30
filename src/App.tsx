@@ -4,40 +4,20 @@ import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Switch } from "@/components/ui/switch"
 
-import { MdOutlineLibraryAdd } from "react-icons/md";
-
-import { backend, cloud, css, db, devop, framework, infoSec, languages, libraries, other, stateManagement, test, tools } from "./lib/defaultCategories";
 import DialogAddGroup from "./components/DialogAddGroup";
 import Group from "./components/Group";
 import DropdownCategoryOptions from "./components/DropdownCategoryOptions";
 
+import { MdOutlineLibraryAdd } from "react-icons/md";
+
 function App() {
   const [isActivate, setIsActivate] = useState(false)
   const [currentTab, setCurrentTab] = useState("programming")
-
-  // Change the state to use an object to manage categories and keywords
-  const [tabInfo, setTabInfo] = useState<TabInfo>({
-    programming: {
-      "Frontend Languages": languages,
-      "Frontend Framework": framework,
-      "State Management": stateManagement,
-      "Libraries": libraries,
-      "CSS": css,
-      "Backend": backend,
-      "Cloud": cloud,
-      "Test": test,
-      "Database": db,
-      "Tools": tools,
-      "Devop": devop,
-      "InfoSec": infoSec,
-      "Other": other,
-    }
-  });
+  const [status, setStatus] = useState("")
+  const [tabInfo, setTabInfo] = useState<TabInfo>({});
 
   const tabs = Object.keys(tabInfo)
   const selectedTabInfo = tabInfo[currentTab]
-  const [status, setStatus] = useState("")
-
 
   function deactivate(isChecked: boolean) {
     chrome.tabs?.query({ active: true, currentWindow: true }, (tabs) => {
@@ -59,23 +39,26 @@ function App() {
   function activate(isChecked: boolean) {
     chrome.tabs?.query({ active: true, currentWindow: true }, (tabs) => {
       const activeTabId = tabs[0]?.id;
+      const activeTabUrl = tabs[0]?.url;
 
       chrome.runtime.sendMessage({
         status: 'activate',
         from: 'popup',
-        tabId: activeTabId
+        tabId: activeTabId,
+        tabUrl: activeTabUrl
       }, response => {
         const state = response.status === "activateSuccess" ? isChecked : !isChecked
-
         setIsActivate(state)
-        chrome.storage?.local.set({ switchState: state });
 
+        chrome.storage?.local.set({ switchState: state });
         chrome.storage?.local.get('tabInfo', (result) => {
           if (result.tabInfo !== undefined) {
-            setStatus(JSON.stringify(result.tabInfo))
+            // setStatus(JSON.stringify(result.tabInfo))
+            setTabInfo(result.tabInfo)
           } else {
             // get tabInfo from init
-            setStatus(JSON.stringify(response.data))
+            // setStatus(JSON.stringify(response.data))
+            setTabInfo(response.data)
           }
         });
       });
@@ -110,7 +93,6 @@ function App() {
     setCurrentTab(newTitle)
   }
 
-
   function clearStorage() {
     chrome.storage?.local.clear(function () {
       const error = chrome.runtime.lastError;
@@ -132,20 +114,11 @@ function App() {
 
     chrome.storage?.local.get('tabInfo', (result) => {
       if (result.tabInfo !== undefined) {
-        setStatus(JSON.stringify(result.tabInfo))
+        // setStatus(JSON.stringify(result.tabInfo))
+        setTabInfo(result.tabInfo)
       }
     });
   }, []);
-
-  function getLocal() {
-    chrome.runtime.sendMessage({
-      status: 'storageStatus',
-      from: 'popup',
-      data: null
-    }, response => {
-      setStatus(JSON.stringify(response.data))
-    });
-  }
 
   return (
     <div className='flex flex-col items-center justify-center p-4 gap-4'>
@@ -161,7 +134,6 @@ function App() {
       </div>
       <Button onClick={clearStorage}>clearStorage</Button>
       <div>{status}</div>
-      <Button onClick={getLocal}>get local</Button>
       <p className="text-neutral-600 text-center">An extension for 104 job search website to extract <span className="font-semibold">ENGLISH</span> keywords from job description. Default to programming job.</p>
       <div className="text-xs">
         Todo:
@@ -171,7 +143,7 @@ function App() {
           <li>Detect css class on screen size change</li>
         </ul>
       </div>
-      <Tabs value={currentTab} onValueChange={setCurrentTab} className="w-full">
+      {tabs.length !== 0 && <Tabs value={currentTab} onValueChange={setCurrentTab} className="w-full">
         <div className="flex items-center">
           <div className="max-w-[400px] overflow-auto pt-4 pb-4">
             <TabsList className="grow flex justify-start w-fit">
@@ -229,7 +201,7 @@ function App() {
             {/* <pre className="text-xs">{JSON.stringify(tabInfo, null, 2)}</pre> */}
           </TabsContent >
         })}
-      </Tabs >
+      </Tabs >}
     </div >
   );
 }

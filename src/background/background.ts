@@ -3,7 +3,7 @@ import inactive128 from '../assets/inactive_128.png';
 
 type KeywordBadges = string
 
-const tabKeywordBadgesCache: { [tab: number]: KeywordBadges } = {};
+const tabKeywordBadgesCache: { [tab: string]: KeywordBadges } = {};
 // const activeTabs: { [tab: number]: boolean } = {};
 
 chrome.runtime.onInstalled.addListener((details) => {
@@ -99,16 +99,20 @@ function handlePopup(
   message: Message,
   sendResponse: (response?: any) => void
 ) {
-  const { status, tabId } = message
+  const { status, tabId, tabUrl } = message
 
   if (status === "activate") {
-    activateExtension(tabId, sendResponse)
+    activateExtension(tabId, tabUrl, sendResponse)
   } else if (status === "deactivate") {
     deactivateExtension(tabId, sendResponse)
   }
 }
 
-function activateExtension(tabId: number | undefined, sendResponse?: (response?: any) => void) {
+function activateExtension(
+  tabId: number | undefined,
+  tabUrl: string | undefined,
+  sendResponse?: (response?: any) => void,
+) {
   if (!tabId) return
 
   chrome.scripting.executeScript({
@@ -117,51 +121,54 @@ function activateExtension(tabId: number | undefined, sendResponse?: (response?:
   }, _response => {
     console.log('activate executeScript');
 
-    chrome.action.setPopup({
-      popup: "index.html"
-    })
+    chrome.action.setPopup({ popup: "index.html" })
 
     setIcon(tabId, favicon128)
 
-    chrome.tabs.sendMessage(tabId, {
-      status: 'activate',
-      from: 'serviceWorker',
-      data: tabKeywordBadgesCache[tabId] || null
-    }).then((res) => {
-      console.log('res from contentScript', res);
+    console.log('send to contentScript');
 
-      // store skillBadges to cache
-      if (res?.data?.skillBadges) {
-        tabKeywordBadgesCache[tabId] = res.data.skillBadges
-      }
-
-      console.log('check cache ', tabKeywordBadgesCache);
-
-      if (sendResponse) {
-        console.log('send to popup on popup trigger');
-        sendResponse({
-          ...res,
-          data: res.data.tabInfo
-        });
-      } else {
-        console.log('send to popup on update');
-        chrome.runtime.sendMessage({
-          from: 'activateSuccess',
-          status: 'serviceWorker',
-          data: res.data.tabInfo
-        });
-      }
-    }).catch(err => {
-      console.log('activate err', err);
-
-      setIcon(tabId, inactive128)
-      chrome.runtime.sendMessage({
+    chrome.tabs
+      .sendMessage(tabId, {
+        status: 'activate',
         from: 'serviceWorker',
-        status: 'activateFailed',
-        tabId: tabId,
-        data: err
+        data: tabKeywordBadgesCache[tabUrl ?? tabId] || null
+      })
+      .then((res) => {
+        console.log('res from contentScript', res);
+
+        // store skillBadges to cache
+        if (res?.data?.skillBadges) {
+          tabKeywordBadgesCache[tabUrl ?? tabId] = res.data.skillBadges
+        }
+
+        console.log('check cache ', tabKeywordBadgesCache);
+
+        if (sendResponse) {
+          console.log('send to popup on popup trigger');
+          sendResponse({
+            ...res,
+            data: res.data.tabInfo
+          });
+        } else {
+          console.log('send to popup on update');
+          chrome.runtime.sendMessage({
+            from: 'activateSuccess',
+            status: 'serviceWorker',
+            data: res.data.tabInfo
+          });
+        }
+      })
+      .catch(err => {
+        console.log('activate err', err);
+
+        setIcon(tabId, inactive128)
+        chrome.runtime.sendMessage({
+          from: 'serviceWorker',
+          status: 'activateFailed',
+          tabId: tabId,
+          data: err
+        });
       });
-    });
 
     // activeTabs[tabId] = true;
   });
@@ -210,10 +217,10 @@ function setIcon(tabId: number, icon: string) {
   });
 }
 
-function toggleExtension(tabId: number | undefined) {
+function toggleExtension(tabId: number | undefined, tabUrl: string) {
   chrome.storage.local.get('switchState', (result) => {
     if (result.switchState) {
-      activateExtension(tabId);
+      activateExtension(tabId, tabUrl);
     } else {
       deactivateExtension(tabId)
     }
@@ -226,31 +233,33 @@ function isIn104Website(tabUrl: string | undefined) {
 
 // switch tab
 chrome.tabs.onActivated.addListener((activeInfo) => {
-  console.log('activeInfo', activeInfo);
+  console.log('switch tab: activeInfo', activeInfo);
   const tabId = activeInfo.tabId;
 
   // Get information about the active tab
   chrome.tabs.get(tabId, (tab) => {
-    console.log('tab', tab);
-
     const tabUrl = tab.url || ''; // Ensure the URL is available
 
     if (!isIn104Website(tabUrl)) {
       return console.log('Non-job-search tab activated, ignoring.');
     }
 
-    console.log('tabId', tabId);
-    toggleExtension(tabId) // toggle on switch tab
+    toggleExtension(tabId, tabUrl) // toggle on switch tab
+    return true
   })
+
+  return true
 });
 
 // refresh tab
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-  console.log('onUpdated', tabId);
+  console.log('refresh tab: onUpdated', tabId);
+  const tabUrl = tab.url || ''; // Ensure the URL is available
 
-  if (changeInfo.status !== 'complete' || !isIn104Website(tab.url)) return
+  if (changeInfo.status !== 'complete' || !isIn104Website(tabUrl)) return
 
-  toggleExtension(tabId) // toggle on create new tab
+  toggleExtension(tabId, tabUrl) // toggle on create new tab
+  return true
 });
 
 chrome.tabs.onRemoved.addListener((tabId) => {

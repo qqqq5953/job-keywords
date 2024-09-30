@@ -5,6 +5,7 @@ type Message = {
   from: 'popup' | 'contentScript' | 'serviceWorker',
   data: string | null
   tabId?: number
+  tabUrl?: string
 }
 
 type Keyword = {
