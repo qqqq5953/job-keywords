@@ -13,7 +13,7 @@ import { MdOutlineLibraryAdd } from "react-icons/md";
 function App() {
   const [isActivate, setIsActivate] = useState(false)
   const [currentTab, setCurrentTab] = useState("programming")
-  const [status, setStatus] = useState("")
+  // const [status, setStatus] = useState("")
   const [tabInfo, setTabInfo] = useState<TabInfo>({});
 
   const tabs = Object.keys(tabInfo)
@@ -93,16 +93,16 @@ function App() {
     setCurrentTab(newTitle)
   }
 
-  function clearStorage() {
-    chrome.storage?.local.clear(function () {
-      const error = chrome.runtime.lastError;
-      if (error) {
-        setStatus(error.message ?? "clear failed")
-      } else {
-        setStatus("clear success")
-      }
-    });
-  }
+  // function clearStorage() {
+  //   chrome.storage?.local.clear(function () {
+  //     const error = chrome.runtime.lastError;
+  //     if (error) {
+  //       setStatus(error.message ?? "clear failed")
+  //     } else {
+  //       setStatus("clear success")
+  //     }
+  //   });
+  // }
 
   useEffect(() => {
     // Load the switch state from Chrome storage when the component mounts
@@ -132,8 +132,8 @@ function App() {
           />
         </div>
       </div>
-      <Button onClick={clearStorage}>clearStorage</Button>
-      <div>{status}</div>
+      {/* <Button onClick={clearStorage}>clearStorage</Button> */}
+      {/* <div>{status}</div> */}
       <p className="text-neutral-600 text-center">An extension for 104 job search website to extract <span className="font-semibold">ENGLISH</span> keywords from job description. Default to programming job.</p>
       <div className="text-xs">
         Todo:
